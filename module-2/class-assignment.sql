@@ -58,6 +58,14 @@ GO
 -- Show results: Tax, Sales, Tax pct
 -- Estimate the pct relative to sales
 
+-- Attempt 1: Final Answer
+SELECT
+	[TaxAmt],
+	[SubTotal],
+	([TaxAmt]/[SubTotal] * 100) AS [TaxPct]
+FROM Sales.SalesOrderHeader
+ORDER BY [TaxPct]
+GO
 
 -- Question  3: Get the Freight pct for all orders
 -- Show results: Freight, Sales, Freight pct
