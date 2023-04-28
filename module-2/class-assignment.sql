@@ -85,6 +85,27 @@ GO
 -- Question  5: Get the average value of an order by year, month
 -- Show results: Year, Month, Avg Value of Orders
  
+-- Attempt 1
+--SELECT
+--	[OrderDate],
+--	[SubTotal]
+--FROM Sales.SalesOrderHeader
+--GO
+-- Attempt 2
+--SELECT
+--	YEAR([OrderDate]) AS [Year],
+--	MONTH([OrderDate]) AS [Month],
+--	[SubTotal]
+--FROM Sales.SalesOrderHeader
+--GO
+-- Attempt 3: Final Answer
+SELECT
+	YEAR([OrderDate]) AS [Year],
+	MONTH([OrderDate]) AS [Month],
+	AVG([SubTotal]) AS [Order Avg Value]
+FROM Sales.SalesOrderHeader
+GROUP BY YEAR([OrderDate]), MONTH([OrderDate])
+GO
 
 -- Question  6: Get all products that have a color value
 -- Show results: Product Name
@@ -171,3 +192,4 @@ GO
 -- Question  10: Get the year summary, with rollup, of sales by sales person id
 -- handle the case when there is no sales person associated to the sale
 -- Show results: Year, Sales Person Id, Sales
+
