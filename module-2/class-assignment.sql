@@ -23,10 +23,7 @@ SELECT
 	COLUMN_NAME
 FROM INFORMATION_SCHEMA.COLUMNS
 WHERE COLUMN_NAME IN (
-	'Sales',
-	'Taxes',
-	'Freight',
-	'TotalDue')
+	'ProductName')
 -- Exclude Views
 AND TABLE_NAME NOT LIKE 'V%'
 Order BY COLUMN_NAME
@@ -79,7 +76,6 @@ SELECT
 FROM Sales.SalesOrderHeader
 ORDER BY [FreightPct]
 GO
- 
 
 -- Question  4: Get the summary of freight percents,
 -- with the total freight, total value of sales and number of orders
@@ -93,6 +89,24 @@ GO
 -- Question  6: Get all products that have a color value
 -- Show results: Product Name
 
+-- Attempt 1
+--SELECT
+--	*
+--FROM Production.Product
+--GO
+-- Attempt 2
+--SELECT
+--	[Name],
+--	[Color]
+--FROM Production.Product
+--WHERE [Color] IS NOT NULL
+--GO
+-- Attempt 3: Final Answer
+SELECT
+	[Name]
+FROM Production.Product
+WHERE [Color] IS NOT NULL
+GO
 
 -- Question  7: Get the summary of product lines
 -- with the number of products in each product line
