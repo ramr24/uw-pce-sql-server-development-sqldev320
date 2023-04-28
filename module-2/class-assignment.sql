@@ -70,6 +70,15 @@ GO
 -- Question  3: Get the Freight pct for all orders
 -- Show results: Freight, Sales, Freight pct
 -- Estimate the pct relative to sales
+
+-- Attempt 1: Final Answer
+SELECT
+	[Freight],
+	[SubTotal],
+	([Freight]/[SubTotal] * 100) AS [FreightPct]
+FROM Sales.SalesOrderHeader
+ORDER BY [FreightPct]
+GO
  
 
 -- Question  4: Get the summary of freight percents,
