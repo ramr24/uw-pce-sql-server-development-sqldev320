@@ -136,7 +136,37 @@ GO
 
 -- Question  9: Find if there are any products with a list price less than the standard cost
 -- Show product id and name for those products
- 
+
+-- Attempt 1
+--SELECT
+--	*
+--FROM Production.Product
+--GO
+-- Attempt 2
+--SELECT
+--	[ProductID],
+--	[Name],
+--	[ListPrice],
+--	[StandardCost]
+--FROM Production.Product
+--WHERE [ListPrice] > 0
+--GO
+-- Attempt 3
+--SELECT
+--	[ProductID],
+--	[Name],
+--	[ListPrice],
+--	[StandardCost]
+--FROM Production.Product
+--WHERE [ListPrice] < [StandardCost]
+--GO
+-- Attempt 4: Final Answer
+SELECT
+	[ProductID],
+	[Name]
+FROM Production.Product
+WHERE [ListPrice] < [StandardCost]
+GO
 
 -- Question  10: Get the year summary, with rollup, of sales by sales person id
 -- handle the case when there is no sales person associated to the sale
