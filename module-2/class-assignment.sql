@@ -111,9 +111,28 @@ GO
 -- Question  7: Get the summary of product lines
 -- with the number of products in each product line
  
+-- Attempt 1
+SELECT
+	[ProductLine],
+	COUNT([ProductLine])
+FROM Production.Product
+GROUP BY ProductLine
+GO
 
 -- Question  8: Get all product names that end in 'wheel'
 
+-- Attempt 1
+--SELECT
+--	[Name]
+--FROM Production.Product
+--GO
+-- Attempt 2: Final Answer
+SELECT
+	[Name]
+FROM Production.Product
+WHERE [Name]
+	LIKE '%wheel'
+GO
 
 -- Question  9: Find if there are any products with a list price less than the standard cost
 -- Show product id and name for those products
