@@ -9,7 +9,7 @@
 ***************************************************
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
-** 2023-04-27	Ramkumar Rajanbabu	Started query
+** 2023-04-27	Ramkumar Rajanbabu	Completed questions 1, 2, 3, 5, 6, 8, 9
 **************************************************/
 
 -- Access Database
