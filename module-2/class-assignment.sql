@@ -10,6 +10,7 @@
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
 ** 2023-04-27	Ramkumar Rajanbabu	Completed questions 1, 2, 3, 5, 6, 8, 9
+** 2023-05-03	Ramkumar Rajanbabu	Completed questions 7. Not sure of questions 4, 10.
 **************************************************/
 
 -- Access Database
@@ -23,7 +24,7 @@ SELECT
 	COLUMN_NAME
 FROM INFORMATION_SCHEMA.COLUMNS
 WHERE COLUMN_NAME IN (
-	'ProductName')
+	'Freight')
 -- Exclude Views
 AND TABLE_NAME NOT LIKE 'V%'
 Order BY COLUMN_NAME
@@ -81,6 +82,31 @@ GO
 -- with the total freight, total value of sales and number of orders
 -- Show results: Freight Pct, Freight, Sales, Orders
 
+-- Attempt 1
+--SELECT
+--	*
+--FROM Sales.SalesOrderDetail
+--GO
+-- Attempt 2
+--SELECT
+--	[SalesOrderID],
+--	SUM([LineTotal]) AS Sales,
+--	SUM([OrderQty]) AS Orders
+--FROM Sales.SalesOrderDetail
+--GROUP BY [SalesOrderID]
+--GO
+-- Attempt 3: Unsure of the Answer?
+SELECT
+	sod.[SalesOrderID],
+	SUM([Freight]) AS Freight,
+	SUM([LineTotal]) AS Sales,
+	SUM([OrderQty]) AS Orders
+FROM Sales.SalesOrderDetail sod
+INNER JOIN Sales.SalesOrderHeader soh
+ON soh.SalesOrderID = sod.SalesOrderID 
+GROUP BY sod.SalesOrderID
+ORDER BY 4 DESC
+GO
 
 -- Question  5: Get the average value of an order by year, month
 -- Show results: Year, Month, Avg Value of Orders
@@ -133,12 +159,20 @@ GO
 -- with the number of products in each product line
  
 -- Attempt 1
+--SELECT
+--	[ProductLine],
+--	COUNT([ProductLine])
+--FROM Production.Product
+--GROUP BY ProductLine
+--GO
+-- Attempt 2: Final Answer
 SELECT
 	[ProductLine],
-	COUNT([ProductLine])
+	COUNT(*) AS [ProductCount]
 FROM Production.Product
 GROUP BY ProductLine
 GO
+
 
 -- Question  8: Get all product names that end in 'wheel'
 
@@ -193,3 +227,31 @@ GO
 -- handle the case when there is no sales person associated to the sale
 -- Show results: Year, Sales Person Id, Sales
 
+-- Attempt 1
+--SELECT
+--	*
+--FROM Sales.SalesOrderHeader
+--GO
+-- Attempt 2
+--SELECT
+--	YEAR([OrderDate]) AS [Year],
+--	[SalesPersonID],
+--	[SubTotal]
+--FROM Sales.SalesOrderHeader
+--GO
+-- Attempt 3
+--SELECT
+--	YEAR([OrderDate]) AS [Year],
+--	[SalesPersonID],
+--	SUM([SubTotal])
+--FROM Sales.SalesOrderHeader
+--GROUP BY YEAR([OrderDate]), [SalesPersonID]
+--GO
+-- Attempt 4: Unsure of Answer?
+SELECT
+	YEAR([OrderDate]) AS [Year],
+	[SalesPersonID],
+	SUM([SubTotal])
+FROM Sales.SalesOrderHeader
+GROUP BY ROLLUP (YEAR([OrderDate]), [SalesPersonID])
+GO
