@@ -9,7 +9,7 @@
 ***************************************************
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
-** 2023-05-09	Ramkumar Rajanbabu	Completed question 3, 10.
+** 2023-05-09	Ramkumar Rajanbabu	Completed question 3, 4, 10.
 **************************************************/
 
 -- Access Database
@@ -19,29 +19,18 @@ GO
 SET ANSI_WARNINGS OFF
 SET NOCOUNT ON
 
--- SQL Query to find the column names
---SELECT 
---	TABLE_SCHEMA,
---	TABLE_NAME,
---	COLUMN_NAME
---FROM INFORMATION_SCHEMA.COLUMNS
---WHERE COLUMN_NAME IN (
---	'Freight')
----- Exclude Views
---AND TABLE_NAME NOT LIKE 'V%'
---Order BY COLUMN_NAME
---GO
-
 -- **Questions**
 -- Q01 Get all order details with a negative margin
 -- Show results: SalesOrderID, SalesOrderDetailID, Margin
 -- Define Margin := Sales - Total Cost
 -- Hint: Follow the relationship SalesOrderDetail >-- Product
 -- Attempt 1
---SELECT * FROM Production.Product
---GO
---SELECT * FROM Sales.SalesOrderDetail
---GO
+SELECT * FROM Production.Product
+GO
+SELECT * FROM Sales.SalesOrderDetail
+GO
+SELECT * FROM Sales.SalesOrderHeader
+GO
 -- Attempt 2
 SELECT * FROM Production.Product
 GO
@@ -49,17 +38,15 @@ SELECT * FROM Sales.SalesOrderDetail
 GO
 
 
-
 SELECT 
 	[sod].[SalesOrderID],
 	[sod].[SalesOrderDetailID],
-	[pp].[ProductID],
-	([sod].[LineTotal] - [pp].[StandardCost]) AS [Margin]
+	[sod].[LineTotal] - SUM([pp].[StandardCost])
 FROM [Sales].[SalesOrderDetail] AS [sod]
-LEFT JOIN [Production].[Product] AS [pp]
+INNER JOIN [Production].[Product] AS [pp]
 ON [sod].[ProductID] = [pp].[ProductID]
 WHERE ([sod].[LineTotal] - [pp].[StandardCost]) < 0
-ORDER BY [sod].[SalesOrderID], [sod].[SalesOrderDetailID]
+GROUP BY [sod].[SalesOrderID], [sod].[SalesOrderDetailID], [sod].[LineTotal]
 GO
 
 
@@ -106,30 +93,34 @@ GO
 -- Show results: Year, Month, Sales total, Items total
 -- Hint: use the functions YEAR() and MONTH() to obtain the year and month
 -- Attempt 1
-
-SELECT * FROM Production.Product
-GO
-SELECT * FROM Sales.SalesOrderDetail
-GO
-SELECT * FROM Sales.SalesOrderHeader
-GO
-
-
-
+--SELECT * FROM [Sales].[SalesOrderDetail]
+--GO
+--SELECT * FROM [Sales].[SalesOrderHeader]
+--GO
+-- Attempt 2
+--SELECT
+--	[sod].[SalesOrderID],
+--	[sod].[SalesOrderDetailID],
+--	YEAR([soh].[OrderDate]) AS [Year],
+--	MONTH([soh].[OrderDate]) AS [Month],
+--	[sod].[LineTotal] AS [Sales Total],
+--	[sod].[OrderQty] AS [Items Total]
+--FROM [Sales].[SalesOrderDetail] AS [sod]
+--INNER JOIN [Sales].[SalesOrderHeader] AS [soh]
+--ON [sod].[SalesOrderID] = [soh].[SalesOrderID]
+--GO
+-- Attempt 3: Final Answer
 SELECT
-	--sod.[SalesOrderID],
-	--sod.[SalesOrderDetailID],
-	YEAR(soh.[OrderDate]) AS [Year],
-	MONTH(soh.[OrderDate]) AS [Month],
-	SUM(soh.[SubTotal]) AS [Sales Total],
+	YEAR([soh].[OrderDate]) AS [Year],
+	MONTH([soh].[OrderDate]) AS [Month],
+	SUM([sod].[LineTotal]) AS [Sales Total],
 	SUM(sod.[OrderQty]) AS [Items Total]
-FROM [Sales].[SalesOrderDetail] AS sod
-JOIN [Sales].[SalesOrderHeader] AS soh
+FROM [Sales].[SalesOrderDetail] AS [sod]
+INNER JOIN [Sales].[SalesOrderHeader] AS [soh]
 ON [sod].[SalesOrderID] = [soh].[SalesOrderID]
-GROUP BY YEAR([OrderDate]), MONTH([OrderDate])
-ORDER BY YEAR([OrderDate]), MONTH([OrderDate])
+GROUP BY YEAR([soh].[OrderDate]), MONTH([soh].[OrderDate])
+ORDER BY YEAR([soh].[OrderDate]), MONTH([soh].[OrderDate])
 GO
-
 
 -- Q05 Get the average value of an order by year, month
 -- include the average number of lines and the average number of items per order
@@ -164,7 +155,58 @@ GO
 -- Define Margin% = (1 - Cost/Sales) * 100
 -- Hint: Follow the relationships SalesOrderheader >-- SalesTerritory >--
 --CountryRegion
+-- Attempt 1
 
+
+SELECT * FROM Production.Product
+GO
+SELECT * FROM [Sales].[SalesOrderDetail]
+GO
+SELECT * FROM [Sales].[SalesOrderHeader]
+GO
+SELECT * FROM [Sales].[SalesTerritory]
+GO
+SELECT * FROM [Person].[CountryRegion]
+GO
+
+
+
+SELECT
+	--[soh].[SalesOrderID],
+	SUM([soh].[SubTotal]) AS [Total],
+	SUM([soh].[TaxAmt]) AS [Cost],
+	--[st].[TerritoryID],
+	[cr].[CountryRegionCode],
+	[cr].[Name]
+FROM [Sales].[SalesOrderHeader] AS [soh]
+INNER JOIN [Sales].[SalesTerritory] AS [st]
+ON [soh].[TerritoryID] = [st].[TerritoryID]
+INNER JOIN [Person].[CountryRegion] AS [cr]
+ON [st].[CountryRegionCode] = [cr].[CountryRegionCode]
+GROUP BY
+	[cr].[CountryRegionCode],
+	[cr].[Name]
+ORDER BY [cr].[Name]
+GO
+
+
+
+
+
+FROM [Production].[Product] as [pp]
+INNER JOIN [Sales].[SalesOrderDetail] AS [sod]
+ON [pp].[ProductID] = [sod].[ProductID]  
+INNER JOIN [Sales].[SalesOrderHeader] AS [soh]
+ON [sod].[SalesOrderID] = [soh].[SalesOrderID]
+INNER JOIN [Sales].[SalesTerritory] AS [st]
+ON [soh].[TerritoryID] = [st].[TerritoryID]
+INNER JOIN [Person].[CountryRegion] AS [cr]
+ON [st].[CountryRegionCode] = [cr].[CountryRegionCode]
+GROUP BY
+	[cr].[CountryRegionCode],
+	[cr].[Name]
+ORDER BY [cr].[Name]
+GO
 
 
 -- Q07 Get the top 5 salespersons by margin per year
