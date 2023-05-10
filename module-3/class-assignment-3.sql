@@ -9,7 +9,7 @@
 ***************************************************
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
-** 2023-05-09	Ramkumar Rajanbabu	Completed question 3.
+** 2023-05-09	Ramkumar Rajanbabu	Completed question 3, 10.
 **************************************************/
 
 -- Access Database
@@ -131,14 +131,31 @@ ORDER BY YEAR([OrderDate]), MONTH([OrderDate])
 GO
 
 
---GROUP BY YEAR([OrderDate]), MONTH([OrderDate])
-
-
-
 -- Q05 Get the average value of an order by year, month
 -- include the average number of lines and the average number of items per order
 -- Show results: Year, Month, Avg Value of Orders, Avg Number of Items, Avg Number
 --of Lines
+
+
+SELECT * FROM Production.Product
+GO
+SELECT * FROM Sales.SalesOrderDetail
+GO
+SELECT * FROM Sales.SalesOrderHeader
+GO
+
+
+SELECT
+	YEAR(soh.[OrderDate]) AS [Year],
+	MONTH(soh.[OrderDate]) AS [Month],
+	AVG(sod.[LineTotal]) AS [Sales Total],
+	AVG(sod.[OrderQty]) AS [Items Total]
+FROM [Sales].[SalesOrderDetail] AS sod
+JOIN [Sales].[SalesOrderHeader] AS soh
+ON [sod].[SalesOrderID] = [soh].[SalesOrderID]
+GROUP BY YEAR([OrderDate]), MONTH([OrderDate])
+ORDER BY YEAR([OrderDate]), MONTH([OrderDate])
+GO
 
 
 
@@ -177,3 +194,92 @@ GO
 -- Hint: follow relationships SalesOrderHeader >-- SalesPerson >-- Person
 -- Show results: [Last Name, First Name], Employee ID, Year, Month, SalesQuota,
 --QuotaPct
+-- Attempt 1
+--SELECT
+--	[SalesPersonID],
+--	YEAR([OrderDate]) AS [Year],
+--	MONTH([OrderDate]) AS [Month]
+--FROM [Sales].[SalesOrderHeader]
+--WHERE YEAR([OrderDate]) = 2012
+--GO
+-- Attempt 2
+--SELECT
+--	[soh].[SalesPersonID],
+--	YEAR([soh].[OrderDate]) AS [Year],
+--	MONTH([soh].[OrderDate]) AS [Month]
+--FROM [Sales].[SalesOrderHeader] AS soh
+--INNER JOIN [Sales].[SalesPerson] AS sp
+--ON [soh].[SalesPersonID] = [sp].[BusinessEntityID]
+--WHERE YEAR([soh].[OrderDate]) = 2012
+--GO
+-- Attempt 3
+--SELECT
+--	[soh].[SalesPersonID],
+--	YEAR([soh].[OrderDate]) AS [Year],
+--	MONTH([soh].[OrderDate]) AS [Month],
+--	[sp].[SalesQuota]
+--FROM [Sales].[SalesOrderHeader] AS soh
+--INNER JOIN [Sales].[SalesPerson] AS sp
+--ON [soh].[SalesPersonID] = [sp].[BusinessEntityID]
+--WHERE YEAR([soh].[OrderDate]) = 2012
+--GO
+-- Attempt 4
+--SELECT
+--	([FirstName] + ' ' + [LastName]) AS Employee,
+--	[soh].[SalesPersonID],
+--	YEAR([soh].[OrderDate]) AS [Year],
+--	MONTH([soh].[OrderDate]) AS [Month],
+--	[sp].[SalesQuota]
+--FROM [Sales].[SalesOrderHeader] AS soh
+--INNER JOIN [Sales].[SalesPerson] AS sp
+--ON [soh].[SalesPersonID] = [sp].[BusinessEntityID]
+--INNER JOIN [Person].[Person] AS pp
+--ON [sp].[BusinessEntityID] = [pp].[BusinessEntityID]
+--WHERE YEAR([soh].[OrderDate]) = 2012
+--GO
+-- Attempt 5
+--SELECT
+--	([FirstName] + ' ' + [LastName]) AS Employee,
+--	[pp].[BusinessEntityID],
+--	YEAR([soh].[OrderDate]) AS [Year],
+--	MONTH([soh].[OrderDate]) AS [Month],
+--	[sp].[SalesQuota],
+--	SUM([soh].[SubTotal]) AS [Month Total]
+--FROM [Sales].[SalesOrderHeader] AS soh
+--INNER JOIN [Sales].[SalesPerson] AS sp
+--ON [soh].[SalesPersonID] = [sp].[BusinessEntityID]
+--INNER JOIN [Person].[Person] AS pp
+--ON [sp].[BusinessEntityID] = [pp].[BusinessEntityID]
+--WHERE YEAR([soh].[OrderDate]) = 2012
+--GROUP BY
+--	([FirstName] + ' ' + [LastName]),
+--	[pp].[BusinessEntityID],
+--	YEAR([soh].[OrderDate]),
+--	MONTH([soh].[OrderDate]),
+--	[sp].[SalesQuota]
+--GO
+-- Attempt 6: Final Answer
+SELECT
+	([FirstName] + ' ' + [LastName]) AS Employee,
+	[pp].[BusinessEntityID],
+	YEAR([soh].[OrderDate]) AS [Year],
+	MONTH([soh].[OrderDate]) AS [Month],
+	[sp].[SalesQuota],
+	SUM([soh].[SubTotal]) AS [Month Total],
+	(SUM([soh].[SubTotal]) / [sp].[SalesQuota]) * 100 AS [Pct Quota]
+FROM [Sales].[SalesOrderHeader] AS soh
+INNER JOIN [Sales].[SalesPerson] AS sp
+ON [soh].[SalesPersonID] = [sp].[BusinessEntityID]
+INNER JOIN [Person].[Person] AS pp
+ON [sp].[BusinessEntityID] = [pp].[BusinessEntityID]
+WHERE YEAR([soh].[OrderDate]) = 2012
+GROUP BY
+	([FirstName] + ' ' + [LastName]),
+	[pp].[BusinessEntityID],
+	YEAR([soh].[OrderDate]),
+	MONTH([soh].[OrderDate]),
+	[sp].[SalesQuota]
+GO
+
+
+
