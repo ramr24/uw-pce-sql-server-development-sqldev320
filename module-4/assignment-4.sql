@@ -43,7 +43,7 @@ GO
 --FROM [Production].[Product]
 --WHERE [Color] IS NULL
 --GO 
--- Attempt 2
+-- Attempt 2: Final Answer
 SELECT
 	[ProductID],
 	CASE
@@ -52,10 +52,39 @@ SELECT
 	END AS [Color]
 FROM [Production].[Product]
 GO
+-- Attempt 3: Final Answer (2nd Method)
+SELECT
+	[ProductID],
+	COALESCE([Color], 'Undefined color')
+FROM [Production].[Product]
+GO
+-- Attempt 4: Final Answer (3rd Method)
+SELECT
+	[ProductID],
+	ISNULL([Color], 'Undefined color')
+FROM [Production].[Product]
+GO
 
 -- Question  3: Find the average value of a Sales Order
 -- and return those orders that are less than the average
-
+-- Attempt 1
+--SELECT
+--	[SalesOrderID],
+--	[SubTotal]
+--FROM [Sales].[SalesOrderHeader]
+--GO
+-- Attempt 2: Final Answer
+WITH AverageValue AS (
+	SELECT
+		AVG([SubTotal]) AS [Average Subtotal]
+	FROM [Sales].[SalesOrderHeader]
+)
+SELECT
+	[SalesOrderID],
+	[SubTotal]
+FROM [Sales].[SalesOrderHeader], AverageValue
+WHERE [SubTotal] < AverageValue.[Average Subtotal]
+GO
  
 
 -- Question  4: Using the information from Question  3,
@@ -67,7 +96,7 @@ GO
 -- Question  5: Write a script that creates index [SalesOrderDetail_CarrierTracking]
 -- on [Sales].[SalesOrderDetail]
 -- For [CarrierTrackingNumber], [SalesOrderID], [SalesOrderDetailID]
--- Make sure the index does not exist before attemping to crea it
+-- Make sure the index does not exist before attemping to create it
 -- Hint: drop the index, if the index exists, before creating it
 -- Hint: Get the table id first; either get it from [sys].[tables] or use the OBJECT_ID() function
 -- Hint: check in [sys].[indexes] if the index exists
