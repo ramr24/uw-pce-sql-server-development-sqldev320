@@ -1,6 +1,6 @@
 /**************************************************
 ** File: Assignment 3
-** Date: 2023-05-09
+** Date: 2023-05-10
 ** Auth: Ramkumar Rajanbabu
 ***************************************************
 ** Desc: Module 3 - Assignment 3
@@ -9,7 +9,7 @@
 ***************************************************
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
-** 2023-05-09	Ramkumar Rajanbabu	Started assignment
+** 2023-05-10	Ramkumar Rajanbabu	Completed question 3, 4, 10.
 **************************************************/
 
 -- Access Database
@@ -39,7 +39,6 @@ SET NOCOUNT ON
 -- Hint: Follow the relationship SalesOrderDetail >-- Product
 
 
-
 -- Q02 Get all orders where one or more details have a negative margin
 -- Show results: SalesOrderID, Total Negative Margin, Total Order Margin
 
@@ -48,13 +47,56 @@ SET NOCOUNT ON
 -- Q03 Get the count of all rows, "customer ids" and "sales person ids" in the
 --SalesOrderHeader table
 -- Show results: Rows, Count of Customer Ids, Count of SalesPerson Ids
-
-
+-- Attempt 1
+--SELECT 
+--	* 
+--FROM [Sales].[SalesOrderHeader]
+--GO
+-- Attempt 2
+--SELECT 
+--	COUNT(*) AS [Rows]
+--FROM [Sales].[SalesOrderHeader]
+--GO
+-- Attempt 3: Final Answer
+SELECT 
+	COUNT(*) AS [Rows],
+	COUNT([CustomerID]) AS [CustomerID],
+	COUNT([SalesPersonID]) AS [SalesPersonID]
+FROM [Sales].[SalesOrderHeader]
+GO
 
 -- Q04 Get the sales total value and number of items per year, month
 -- Show results: Year, Month, Sales total, Items total
 -- Hint: use the functions YEAR() and MONTH() to obtain the year and month
-
+-- Attempt 1
+--SELECT * FROM [Sales].[SalesOrderDetail]
+--GO
+--SELECT * FROM [Sales].[SalesOrderHeader]
+--GO
+-- Attempt 2
+--SELECT
+--	[sod].[SalesOrderID],
+--	[sod].[SalesOrderDetailID],
+--	YEAR([soh].[OrderDate]) AS [Year],
+--	MONTH([soh].[OrderDate]) AS [Month],
+--	[sod].[LineTotal] AS [Sales Total],
+--	[sod].[OrderQty] AS [Items Total]
+--FROM [Sales].[SalesOrderDetail] AS [sod]
+--INNER JOIN [Sales].[SalesOrderHeader] AS [soh]
+--ON [sod].[SalesOrderID] = [soh].[SalesOrderID]
+--GO
+-- Attempt 3: Final Answer
+SELECT
+	YEAR([soh].[OrderDate]) AS [Year],
+	MONTH([soh].[OrderDate]) AS [Month],
+	SUM([sod].[LineTotal]) AS [Sales Total],
+	SUM([sod].[OrderQty]) AS [Items Total]
+FROM [Sales].[SalesOrderDetail] AS [sod]
+INNER JOIN [Sales].[SalesOrderHeader] AS [soh]
+ON [sod].[SalesOrderID] = [soh].[SalesOrderID]
+GROUP BY YEAR([soh].[OrderDate]), MONTH([soh].[OrderDate])
+ORDER BY YEAR([soh].[OrderDate]), MONTH([soh].[OrderDate])
+GO
 
 
 -- Q05 Get the average value of an order by year, month
@@ -99,3 +141,90 @@ SET NOCOUNT ON
 -- Hint: follow relationships SalesOrderHeader >-- SalesPerson >-- Person
 -- Show results: [Last Name, First Name], Employee ID, Year, Month, SalesQuota,
 --QuotaPct
+-- Attempt 1
+--SELECT
+--	[SalesPersonID],
+--	YEAR([OrderDate]) AS [Year],
+--	MONTH([OrderDate]) AS [Month]
+--FROM [Sales].[SalesOrderHeader]
+--WHERE YEAR([OrderDate]) = 2012
+--GO
+-- Attempt 2
+--SELECT
+--	[soh].[SalesPersonID],
+--	YEAR([soh].[OrderDate]) AS [Year],
+--	MONTH([soh].[OrderDate]) AS [Month]
+--FROM [Sales].[SalesOrderHeader] AS soh
+--INNER JOIN [Sales].[SalesPerson] AS sp
+--ON [soh].[SalesPersonID] = [sp].[BusinessEntityID]
+--WHERE YEAR([soh].[OrderDate]) = 2012
+--GO
+-- Attempt 3
+--SELECT
+--	[soh].[SalesPersonID],
+--	YEAR([soh].[OrderDate]) AS [Year],
+--	MONTH([soh].[OrderDate]) AS [Month],
+--	[sp].[SalesQuota]
+--FROM [Sales].[SalesOrderHeader] AS soh
+--INNER JOIN [Sales].[SalesPerson] AS sp
+--ON [soh].[SalesPersonID] = [sp].[BusinessEntityID]
+--WHERE YEAR([soh].[OrderDate]) = 2012
+--GO
+-- Attempt 4
+--SELECT
+--	([FirstName] + ' ' + [LastName]) AS Employee,
+--	[soh].[SalesPersonID],
+--	YEAR([soh].[OrderDate]) AS [Year],
+--	MONTH([soh].[OrderDate]) AS [Month],
+--	[sp].[SalesQuota]
+--FROM [Sales].[SalesOrderHeader] AS soh
+--INNER JOIN [Sales].[SalesPerson] AS sp
+--ON [soh].[SalesPersonID] = [sp].[BusinessEntityID]
+--INNER JOIN [Person].[Person] AS pp
+--ON [sp].[BusinessEntityID] = [pp].[BusinessEntityID]
+--WHERE YEAR([soh].[OrderDate]) = 2012
+--GO
+-- Attempt 5
+--SELECT
+--	([FirstName] + ' ' + [LastName]) AS Employee,
+--	[pp].[BusinessEntityID],
+--	YEAR([soh].[OrderDate]) AS [Year],
+--	MONTH([soh].[OrderDate]) AS [Month],
+--	[sp].[SalesQuota],
+--	SUM([soh].[SubTotal]) AS [Month Total]
+--FROM [Sales].[SalesOrderHeader] AS soh
+--INNER JOIN [Sales].[SalesPerson] AS sp
+--ON [soh].[SalesPersonID] = [sp].[BusinessEntityID]
+--INNER JOIN [Person].[Person] AS pp
+--ON [sp].[BusinessEntityID] = [pp].[BusinessEntityID]
+--WHERE YEAR([soh].[OrderDate]) = 2012
+--GROUP BY
+--	([FirstName] + ' ' + [LastName]),
+--	[pp].[BusinessEntityID],
+--	YEAR([soh].[OrderDate]),
+--	MONTH([soh].[OrderDate]),
+--	[sp].[SalesQuota]
+--GO
+-- Attempt 6: Final Answer
+SELECT
+	([FirstName] + ' ' + [LastName]) AS Employee,
+	[pp].[BusinessEntityID],
+	YEAR([soh].[OrderDate]) AS [Year],
+	MONTH([soh].[OrderDate]) AS [Month],
+	[sp].[SalesQuota],
+	SUM([soh].[SubTotal]) AS [Month Total],
+	(SUM([soh].[SubTotal]) / [sp].[SalesQuota]) * 100 AS [Pct Quota]
+FROM [Sales].[SalesOrderHeader] AS soh
+INNER JOIN [Sales].[SalesPerson] AS sp
+ON [soh].[SalesPersonID] = [sp].[BusinessEntityID]
+INNER JOIN [Person].[Person] AS pp
+ON [sp].[BusinessEntityID] = [pp].[BusinessEntityID]
+WHERE YEAR([soh].[OrderDate]) = 2012
+GROUP BY
+	([FirstName] + ' ' + [LastName]),
+	[pp].[BusinessEntityID],
+	YEAR([soh].[OrderDate]),
+	MONTH([soh].[OrderDate]),
+	[sp].[SalesQuota]
+GO
+
