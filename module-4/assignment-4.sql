@@ -15,11 +15,23 @@
 -- Access Database
 USE [AdventureWorks2019]
 GO
+
 -- **Questions**
 -- Question  1: In the [Production].[Product] table find all products
 -- with no color defined
-
- 
+-- Attempt 1
+--SELECT
+--	[ProductID],
+--	[Color]
+--FROM [Production].[Product]
+--GO
+-- Attempt 2: Final Answer
+SELECT
+	[ProductID],
+	[Color]
+FROM [Production].[Product]
+WHERE [Color] IS NULL
+GO 
 
 -- Question  2: Write a query that will display 'Undefined color')
 -- when no color is defined in the [Production].[Product] table,
