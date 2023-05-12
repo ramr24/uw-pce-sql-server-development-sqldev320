@@ -9,7 +9,7 @@
 ***************************************************
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
-** 2023-05-12	Ramkumar Rajanbabu	Started assignment-4
+** 2023-05-12	Ramkumar Rajanbabu	Completed questions 1, 2
 **************************************************/
 
 -- Access Database
@@ -31,13 +31,27 @@ SELECT
 	[Color]
 FROM [Production].[Product]
 WHERE [Color] IS NULL
-GO 
+GO
 
 -- Question  2: Write a query that will display 'Undefined color')
 -- when no color is defined in the [Production].[Product] table,
 -- otherwise report the color
-
- 
+-- Attempt 1
+--SELECT
+--	[ProductID],
+--	[Color]
+--FROM [Production].[Product]
+--WHERE [Color] IS NULL
+--GO 
+-- Attempt 2
+SELECT
+	[ProductID],
+	CASE
+		WHEN [Color] IS NULL THEN 'Undefined color'
+		ELSE [Color]
+	END AS [Color]
+FROM [Production].[Product]
+GO
 
 -- Question  3: Find the average value of a Sales Order
 -- and return those orders that are less than the average
