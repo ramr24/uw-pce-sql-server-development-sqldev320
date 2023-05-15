@@ -10,7 +10,7 @@
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
 ** 2023-05-12	Ramkumar Rajanbabu	Completed questions 1, 2, 3
-** 2023-05-15	Ramkumar Rajanbabu	Completed questions
+** 2023-05-15	Ramkumar Rajanbabu	Completed questions 6, 7
 **************************************************/
 
 -- Access Database
@@ -99,12 +99,61 @@ GO
 -- Hint: drop the index, if the index exists, before creating it
 -- Hint: Get the table id first; either get it from [sys].[tables] or use the OBJECT_ID() function
 -- Hint: check in [sys].[indexes] if the index exists
+-- Attempt 1
+SELECT 
+	[SalesOrderID],
+	[SalesOrderDetailID],
+	[CarrierTrackingNumber]
+FROM [Sales].[SalesOrderDetail]
+GO
 
- 
+IF OBJECT_ID('dbo.IfTest', 'U') IS NOT NULL
+	BEGIN
+		DROP TABLE [dbo].[IfTest]
+		PRINT 'Table dropped'
+	END
+
+CREATE TABLE [dbo].[IfTest] (
+	COL1 INT NOT NULL PRIMARY KEY
+)
 
 -- Question  6: Check which numbers between 101 and 200 are primes
+-- Attempt 1
+--DECLARE @PRange INT = 200
+--DECLARE @X INT = 101
+--DECLARE @Y INT = 101
+-- Attempt 2
+--DECLARE @PRange INT = 200
+--DECLARE @X INT = 101
+--DECLARE @Y INT = 101
 
- 
+--WHILE (@Y <= @PRange)
+--BEGIN
+--	PRINT @Y
+--SET @X = 2
+--SET @Y = @Y + 1 
+--END
+-- Attempt 3: Final Answer
+DECLARE @PRange INT = 200
+DECLARE @X INT = 101
+DECLARE @Y INT = 101
+
+WHILE (@Y <= @PRange)
+BEGIN
+	WHILE (@X <= @Y) 
+	BEGIN
+		IF ((@Y % @X) = 0) 
+		BEGIN
+			IF (@X = @Y) 
+				PRINT @Y
+				BREAK
+		END
+	IF ((@Y % @X) <> 0)   
+	SET @X = @X + 1
+	END
+SET @X = 2
+SET @Y = @Y + 1 
+END
 
 -- Question  7: Write the Fibonacci sequence for a given value of N = 25
 -- Make the script flexible enough that N can be changed to
@@ -114,8 +163,32 @@ GO
 -- N: 0| 1| 2| 3| 4| 5| 6 7| 8| ... | n |
 -- -: -|--|--|--|--|--|---|---|---|-----|----------------|
 -- F: 0| 1| 1| 2| 3| 5| 8| 13| 21| ... | F(n-2) + F(n-1)|
+-- Attempt 1
+--DECLARE @N INT = 25
+--DECLARE @A INT = 0
+--DECLARE @B INT = 1
+--DECLARE @C INT = 0
+--DECLARE @I INT = 0
 
- 
+--PRINT @A
+--PRINT @B
+-- Attempt 1: Final Answer
+DECLARE @N INT = 25
+DECLARE @A INT = 0
+DECLARE @B INT = 1
+DECLARE @C INT = 0
+DECLARE @I INT = 0
+
+PRINT @A
+PRINT @B
+WHILE @I <= (@N - 2)
+BEGIN
+	SET @C = @A + @B
+	PRINT @C
+	SET @I = @I + 1
+	SET @a=@b
+	SET @b=@c
+END
 
 -- Question  8: Generate a list of 1000 random numbers
 -- between 10 and 19, both ends inclusive
