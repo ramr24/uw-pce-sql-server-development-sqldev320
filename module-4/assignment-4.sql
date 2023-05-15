@@ -9,7 +9,8 @@
 ***************************************************
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
-** 2023-05-12	Ramkumar Rajanbabu	Completed questions 1, 2
+** 2023-05-12	Ramkumar Rajanbabu	Completed questions 1, 2, 3
+** 2023-05-15	Ramkumar Rajanbabu	Completed questions
 **************************************************/
 
 -- Access Database
@@ -85,13 +86,11 @@ SELECT
 FROM [Sales].[SalesOrderHeader], AverageValue
 WHERE [SubTotal] < AverageValue.[Average Subtotal]
 GO
- 
 
 -- Question  4: Using the information from Question  3,
 -- find the percentage of Sales
 -- that are less than the average value of a sale
 
- 
 
 -- Question  5: Write a script that creates index [SalesOrderDetail_CarrierTracking]
 -- on [Sales].[SalesOrderDetail]
