@@ -10,7 +10,7 @@
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
 ** 2023-05-12	Ramkumar Rajanbabu	Completed questions 1, 2, 3
-** 2023-05-15	Ramkumar Rajanbabu	Completed questions 6, 7
+** 2023-05-15	Ramkumar Rajanbabu	Completed questions 6, 7, 4
 **************************************************/
 
 -- Access Database
@@ -90,7 +90,48 @@ GO
 -- Question  4: Using the information from Question  3,
 -- find the percentage of Sales
 -- that are less than the average value of a sale
-
+-- Attempt 1
+--WITH AverageValue AS (
+--	SELECT
+--		AVG([SubTotal]) AS [Average Subtotal]
+--	FROM [Sales].[SalesOrderHeader]
+--)
+--SELECT
+--	[SalesOrderID],
+--	[SubTotal]
+--FROM [Sales].[SalesOrderHeader], AverageValue
+--WHERE [SubTotal] < AverageValue.[Average Subtotal]
+--GO
+-- Attempt 2
+--WITH AverageValue AS (
+--	SELECT
+--		AVG([SubTotal]) AS [Average Subtotal]
+--	FROM [Sales].[SalesOrderHeader]
+--)
+--SELECT
+--	COUNT(*) AS [Sales below Average]
+--FROM [Sales].[SalesOrderHeader], AverageValue
+--WHERE [SubTotal] < AverageValue.[Average Subtotal]
+--GO
+-- Attempt 3: Final Answer (Incomplete for Pct Column)
+WITH AverageValue AS (
+	SELECT
+		AVG([SubTotal]) AS [Average Subtotal]
+	FROM [Sales].[SalesOrderHeader]
+),
+SalesBelowAverage AS (
+	SELECT
+		COUNT(*) AS [Sales below Average]
+	FROM [Sales].[SalesOrderHeader], AverageValue
+	WHERE [SubTotal] < AverageValue.[Average Subtotal]
+)
+SELECT
+	COUNT(*) AS [Total Sales],
+	SalesBelowAverage.[Sales below Average],
+	([Sales below Average] / COUNT(*)) * 100 AS [Pct Sales below Average]
+FROM [Sales].[SalesOrderHeader], SalesBelowAverage
+GROUP BY [Sales below Average]
+GO
 
 -- Question  5: Write a script that creates index [SalesOrderDetail_CarrierTracking]
 -- on [Sales].[SalesOrderDetail]
@@ -172,7 +213,7 @@ END
 
 --PRINT @A
 --PRINT @B
--- Attempt 1: Final Answer
+-- Attempt 2: Final Answer
 DECLARE @N INT = 25
 DECLARE @A INT = 0
 DECLARE @B INT = 1
@@ -186,8 +227,8 @@ BEGIN
 	SET @C = @A + @B
 	PRINT @C
 	SET @I = @I + 1
-	SET @a=@b
-	SET @b=@c
+	SET @A = @B
+	SET @B = @C
 END
 
 -- Question  8: Generate a list of 1000 random numbers
@@ -195,6 +236,27 @@ END
 -- Show the frequency table
 -- Note: your frequency table values should be
 -- different from one run to the next one
+-- Attempt 1
+DECLARE @RRange INT = 19
+DECLARE @X INT = 101
+DECLARE @Y INT = 101
+
+WHILE (@Y <= @RRange)
+BEGIN
+	WHILE (@X <= @Y) 
+	BEGIN
+		IF ((@Y % @X) = 0) 
+		BEGIN
+			IF (@X = @Y) 
+				PRINT @Y
+				BREAK
+		END
+	IF ((@Y % @X) <> 0)   
+	SET @X = @X + 1
+	END
+SET @X = 2
+SET @Y = @Y + 1 
+END
 
  
 
