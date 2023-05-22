@@ -117,7 +117,7 @@ END
 GO
 SELECT DISTINCT 
 	Color [English],
-	[dbo].[ColorToSpanish](color) [Spanish]
+	[dbo].[ColorToSpanish](color) AS [Spanish]
 FROM [Production].[Product]
 GO
 
@@ -154,7 +154,68 @@ NULL NULL
 43660 -77.162
 
 */
+-- Attempt 1
+--SELECT
+--	[D].[SalesOrderID],
+--	[D].[LineTotal],
+--	[D].[OrderQty],
+--	[P].[StandardCost]
+--FROM [Sales].[SalesOrderDetail] AS D
+--INNER JOIN [Production].[Product] AS P
+--	ON [D].[ProductID] = [P].[ProductID]
+--WHERE [SalesOrderID] = 43659
+--GO
+-- Attempt 2
+--SELECT
+--	[D].[SalesOrderID],
+--	SUM([LineTotal]) - SUM([OrderQty]*[StandardCost]) AS [OrderMargin]
+--FROM [Sales].[SalesOrderDetail] AS D
+--INNER JOIN [Production].[Product] AS P
+--	ON [D].[ProductID] = [P].[ProductID]
+--WHERE [SalesOrderID] = 43659
+--GROUP BY [D].[SalesOrderID]
+--GO
+-- Attempt 3
+SELECT
+	CASE
+		WHEN [SalesOrderID] IS NULL THEN NULL
+		WHEN [SalesOrderID] = 0 THEN NULL
+		ELSE [SalesOrderID]
+	END AS [SalesOrderID],
+	SUM([LineTotal]) - SUM([OrderQty]*[StandardCost]) AS [OrderMargin]
+FROM [Sales].[SalesOrderDetail] AS D
+INNER JOIN [Production].[Product] AS P
+	ON [D].[ProductID] = [P].[ProductID]
+WHERE [SalesOrderID] = 43659
+GROUP BY [D].[SalesOrderID]
+GO
 
+
+
+IF OBJECT_ID (N'[dbo].[OrderMargin]') IS NOT NULL
+	DROP FUNCTION [dbo].[OrderMargin]
+GO
+CREATE FUNCTION [dbo].[OrderMargin] (
+	@SalesOrderID
+)
+RETURNS MONEY()
+AS
+BEGIN
+	SUM([LineTotal]) - SUM([OrderQty]*[StandardCost])
+END
+GO
+
+DECLARE @TestOrders TABLE(
+	SalesOrderID INT
+)
+
+INSERT INTO @TestOrders (SalesOrderID)
+VALUES (NULL), (0), (43659), (43660)
+
+SELECT
+	SalesOrderID,
+	[dbo].[OrderProfit](SalesOrderID) AS [OrderProfit]
+FROM @TestOrders
  
 
 -- Question  3: Write a function to test if a number is prime [dbo].[TestPrime]
