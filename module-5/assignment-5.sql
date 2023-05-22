@@ -10,6 +10,7 @@
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
 ** 2023-05-15	Ramkumar Rajanbabu	Started assignment
+** 2023-05-22	Ramkumar Rajanbabu	Completed q1
 **************************************************/
 
 -- Access Database
@@ -56,34 +57,105 @@ White Blanco
 Yellow Amarillo
 */
 -- Attempt 1
-SELECT DISTINCT
-	[Color] [English],
-	CASE
-		WHEN [Color] IS NULL THEN NULL
-		ELSE
-			CASE [Color]
-				WHEN 'Black' THEN 'Negro'
-			END
-	END [Spanish]
-FROM [Production].[Product]
-
-CREATE FUNCTION [dbo].[ColorToSpanish] ()
-RETURNS
-BEGIN
+--SELECT DISTINCT
+--	[Color] [English],
+--	CASE
+--		WHEN [Color] IS NULL THEN NULL
+--		ELSE
+--			CASE [Color]
+--				WHEN 'Black' THEN 'Negro'
+--				WHEN 'Blue' THEN 'Azul'
+--				WHEN 'Grey' THEN 'Gris'
+--				WHEN 'Multi' THEN 'Indefinido'
+--				WHEN 'Red' THEN 'Rojo'
+--				WHEN 'Silver' THEN 'Plata'
+--				WHEN 'Silver/Black' THEN 'Indefinido'
+--				WHEN 'White' THEN 'Blanco'
+--				WHEN 'Yellow' THEN 'Amarillo'
+--			END
+--	END [Spanish]
+--FROM [Production].[Product]
+-- Attempt 2
+--IF OBJECT_ID (N'[dbo].[ColorToSpanish]') IS NOT NULL
+--	DROP FUNCTION [dbo].[ColorToSpanish]
+--GO
+--CREATE FUNCTION [dbo].[ColorToSpanish] (
+--)
+--RETURNS TABLE
+--AS RETURN
+--(
+--	SELECT DISTINCT
+--	[Color] [English],
+--	CASE
+--		WHEN [Color] IS NULL THEN NULL
+--		ELSE
+--			CASE [Color]
+--				WHEN 'Black' THEN 'Negro'
+--				WHEN 'Blue' THEN 'Azul'
+--				WHEN 'Grey' THEN 'Gris'
+--				WHEN 'Multi' THEN 'Indefinido'
+--				WHEN 'Red' THEN 'Rojo'
+--				WHEN 'Silver' THEN 'Plata'
+--				WHEN 'Silver/Black' THEN 'Indefinido'
+--				WHEN 'White' THEN 'Blanco'
+--				WHEN 'Yellow' THEN 'Amarillo'
+--			END
+--	END [Spanish]
+--	FROM [Production].[Product]
+--)
+--GO
+--SELECT * FROM [dbo].[ColorToSpanish]()
+--GO
+-- Attempt 3: Final Answer
+IF OBJECT_ID (N'[dbo].[ColorToSpanish]') IS NOT NULL
+	DROP FUNCTION [dbo].[ColorToSpanish]
+GO
+CREATE FUNCTION [dbo].[ColorToSpanish] (
+	@Color1 NVARCHAR(20) = 'Black',
+	@Color2 NVARCHAR(20) = 'Blue',
+	@Color3 NVARCHAR(20) = 'Grey',
+	@Color4 NVARCHAR(20) = 'Multi',
+	@Color5 NVARCHAR(20) = 'Red',
+	@Color6 NVARCHAR(20) = 'Silver',
+	@Color7 NVARCHAR(20) = 'Silver/Black',
+	@Color8 NVARCHAR(20) = 'White',
+	@Color9 NVARCHAR(20) = 'Yellow'
+)
+RETURNS TABLE
+AS RETURN
+(
 	SELECT DISTINCT
 	[Color] [English],
 	CASE
 		WHEN [Color] IS NULL THEN NULL
 		ELSE
 			CASE [Color]
-				WHEN 'Black' THEN 'Negro'
+				WHEN @Color1 THEN 'Negro'
+				WHEN @Color2 THEN 'Azul'
+				WHEN @Color3 THEN 'Gris'
+				WHEN @Color4 THEN 'Indefinido'
+				WHEN @Color5 THEN 'Rojo'
+				WHEN @Color6 THEN 'Plata'
+				WHEN @Color7 THEN 'Indefinido'
+				WHEN @Color8 THEN 'Blanco'
+				WHEN @Color9 THEN 'Amarillo'
 			END
 	END [Spanish]
-FROM [Production].[Product]
-END
+	FROM [Production].[Product]
+)
+GO
+SELECT * FROM [dbo].[ColorToSpanish](
+	DEFAULT,
+	DEFAULT,
+	DEFAULT,
+	DEFAULT,
+	DEFAULT,
+	DEFAULT,
+	DEFAULT,
+	DEFAULT,
+	DEFAULT)
+GO
 
-
- 
 -- Question  2: Write a function [dbo].[OrderMargin]
 -- to calculate the margin of an Order.
 -- The function takes SalesOrderId as the single argument
