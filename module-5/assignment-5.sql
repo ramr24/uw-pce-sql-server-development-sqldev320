@@ -80,80 +80,45 @@ Yellow Amarillo
 --	DROP FUNCTION [dbo].[ColorToSpanish]
 --GO
 --CREATE FUNCTION [dbo].[ColorToSpanish] (
+--	@Color NVARCHAR(20)
 --)
---RETURNS TABLE
---AS RETURN
---(
---	SELECT DISTINCT
---	[Color] [English],
---	CASE
---		WHEN [Color] IS NULL THEN NULL
---		ELSE
---			CASE [Color]
---				WHEN 'Black' THEN 'Negro'
---				WHEN 'Blue' THEN 'Azul'
---				WHEN 'Grey' THEN 'Gris'
---				WHEN 'Multi' THEN 'Indefinido'
---				WHEN 'Red' THEN 'Rojo'
---				WHEN 'Silver' THEN 'Plata'
---				WHEN 'Silver/Black' THEN 'Indefinido'
---				WHEN 'White' THEN 'Blanco'
---				WHEN 'Yellow' THEN 'Amarillo'
---			END
---	END [Spanish]
---	FROM [Production].[Product]
---)
---GO
---SELECT * FROM [dbo].[ColorToSpanish]()
+--RETURNS NVARCHAR(20)
+--AS
+--BEGIN
+--	RETURN 
+--		CASE
+--			WHEN @Color = 'Black' THEN 'Negro'
+--		END
+--END
 --GO
 -- Attempt 3: Final Answer
 IF OBJECT_ID (N'[dbo].[ColorToSpanish]') IS NOT NULL
 	DROP FUNCTION [dbo].[ColorToSpanish]
 GO
 CREATE FUNCTION [dbo].[ColorToSpanish] (
-	@Color1 NVARCHAR(20) = 'Black',
-	@Color2 NVARCHAR(20) = 'Blue',
-	@Color3 NVARCHAR(20) = 'Grey',
-	@Color4 NVARCHAR(20) = 'Multi',
-	@Color5 NVARCHAR(20) = 'Red',
-	@Color6 NVARCHAR(20) = 'Silver',
-	@Color7 NVARCHAR(20) = 'Silver/Black',
-	@Color8 NVARCHAR(20) = 'White',
-	@Color9 NVARCHAR(20) = 'Yellow'
+	@Color NVARCHAR(20)
 )
-RETURNS TABLE
-AS RETURN
-(
-	SELECT DISTINCT
-	[Color] [English],
-	CASE
-		WHEN [Color] IS NULL THEN NULL
-		ELSE
-			CASE [Color]
-				WHEN @Color1 THEN 'Negro'
-				WHEN @Color2 THEN 'Azul'
-				WHEN @Color3 THEN 'Gris'
-				WHEN @Color4 THEN 'Indefinido'
-				WHEN @Color5 THEN 'Rojo'
-				WHEN @Color6 THEN 'Plata'
-				WHEN @Color7 THEN 'Indefinido'
-				WHEN @Color8 THEN 'Blanco'
-				WHEN @Color9 THEN 'Amarillo'
-			END
-	END [Spanish]
-	FROM [Production].[Product]
-)
+RETURNS NVARCHAR(20)
+AS
+BEGIN
+	RETURN 
+		CASE
+			WHEN @Color = 'Black' THEN 'Negro'
+			WHEN @Color = 'Blue' THEN 'Azul'
+			WHEN @Color = 'Grey' THEN 'Gris'
+			WHEN @Color = 'Multi' THEN 'Indefinido'
+			WHEN @Color = 'Red' THEN 'Rojo'
+			WHEN @Color = 'Silver' THEN 'Plata'
+			WHEN @Color = 'Silver/Black' THEN 'Indefinido'
+			WHEN @Color = 'White' THEN 'Blanco'
+			WHEN @Color = 'Yellow' THEN 'Amarillo'
+		END
+END
 GO
-SELECT * FROM [dbo].[ColorToSpanish](
-	DEFAULT,
-	DEFAULT,
-	DEFAULT,
-	DEFAULT,
-	DEFAULT,
-	DEFAULT,
-	DEFAULT,
-	DEFAULT,
-	DEFAULT)
+SELECT DISTINCT 
+	Color [English],
+	[dbo].[ColorToSpanish](color) [Spanish]
+FROM [Production].[Product]
 GO
 
 -- Question  2: Write a function [dbo].[OrderMargin]
