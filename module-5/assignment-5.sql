@@ -11,7 +11,7 @@
 ** ----------	------------------  ---------------
 ** 2023-05-15	Ramkumar Rajanbabu	Started assignment
 ** 2023-05-22	Ramkumar Rajanbabu	Completed q1, q2
-** 2023-05-23	Ramkumar Rajanbabu	Completed q3
+** 2023-05-23	Ramkumar Rajanbabu	Completed q3, q4
 **************************************************/
 
 -- Access Database
@@ -274,9 +274,6 @@ BEGIN
 	RETURN @Result
 END
 GO
-
-
-
 -- Testing Answer
 DECLARE @TestNumbers TABLE(
 	N INT
@@ -340,18 +337,18 @@ D Date part string Date part number
 3141-05-09 W 19
 3141-05-09 Y 3141
 */
--- Attempt 1
+-- Attempt 1: Final Answer
 IF OBJECT_ID (N'[dbo].[DatePartFromString]') IS NOT NULL
 	DROP FUNCTION [dbo].[DatePartFromString]
 GO
 CREATE FUNCTION [dbo].[DatePartFromString] (
-	@D DATE,
-	@DatePart NVARCHAR(1)
+	@DatePart NVARCHAR(1),
+	@D DATE
 )
 RETURNS INT
 AS
 BEGIN
-	RETURN 
+	RETURN
 		CASE
 			WHEN @DatePart = 'Y' THEN DATEPART(YEAR, @D)
 			WHEN @DatePart = 'Q' THEN DATEPART(QUARTER, @D)
@@ -361,19 +358,7 @@ BEGIN
 		END
 END
 GO
-
-SELECT DISTINCT
-	[OrderDate],
-	[dbo].[DatePartFromString]([OrderDate], 'Y'),
-	[dbo].[DatePartFromString]([OrderDate], 'Q'),
-	[dbo].[DatePartFromString]([OrderDate], 'M'),
-	[dbo].[DatePartFromString]([OrderDate], 'W'),
-	[dbo].[DatePartFromString]([OrderDate], 'D')
-FROM [Sales].[SalesOrderHeader]
-GO
-
-
-
+-- Testing Answer
 DECLARE @TestDates TABLE(
 D DATE
 )
@@ -382,10 +367,9 @@ DECLARE @DateParts TABLE(
 )
 INSERT INTO @TestDates (D) VALUES ('3141-5-9'), ('1011-12-13')
 INSERT INTO @DateParts ([DatePart]) VALUES ('Y'), ('Q'), ('M'), ('W'), ('D')
-SELECT
-	D,
-	[DatePart] AS [Date part string]
+SELECT D, [DatePart] AS [Date part string], [dbo].DatePartFromString([DatePart],D) AS [Date part number]
 FROM @TestDates CROSS JOIN @DateParts
+ORDER BY D, [DatePart]
 GO
 
 -- Question  5: Create function [dbo].[GetPeriodRange] that returns the start and end dates
