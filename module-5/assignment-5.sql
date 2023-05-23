@@ -10,7 +10,7 @@
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
 ** 2023-05-15	Ramkumar Rajanbabu	Started assignment
-** 2023-05-22	Ramkumar Rajanbabu	Completed q1
+** 2023-05-22	Ramkumar Rajanbabu	Completed q1, q2
 **************************************************/
 
 -- Access Database
@@ -152,7 +152,6 @@ NULL NULL
 0 NULL
 43659 1273.8398
 43660 -77.162
-
 */
 -- Attempt 1
 --SELECT
@@ -176,47 +175,47 @@ NULL NULL
 --GROUP BY [D].[SalesOrderID]
 --GO
 -- Attempt 3
-SELECT
-	CASE
-		WHEN [SalesOrderID] IS NULL THEN NULL
-		WHEN [SalesOrderID] = 0 THEN NULL
-		ELSE [SalesOrderID]
-	END AS [SalesOrderID],
-	SUM([LineTotal]) - SUM([OrderQty]*[StandardCost]) AS [OrderMargin]
-FROM [Sales].[SalesOrderDetail] AS D
-INNER JOIN [Production].[Product] AS P
-	ON [D].[ProductID] = [P].[ProductID]
-WHERE [SalesOrderID] = 43659
-GROUP BY [D].[SalesOrderID]
-GO
-
-
-
+--DECLARE @SalesOrderID INT = 43659
+--SELECT
+--	[D].[SalesOrderID],
+--	SUM([LineTotal]) - SUM([OrderQty]*[StandardCost]) AS [OrderMargin]
+--FROM [Sales].[SalesOrderDetail] AS D
+--INNER JOIN [Production].[Product] AS P
+--	ON [D].[ProductID] = [P].[ProductID]
+--WHERE [SalesOrderID] = @SalesOrderID
+--GROUP BY [D].[SalesOrderID]
+--GO
+-- Attemt 4: Final Answer
 IF OBJECT_ID (N'[dbo].[OrderMargin]') IS NOT NULL
 	DROP FUNCTION [dbo].[OrderMargin]
 GO
 CREATE FUNCTION [dbo].[OrderMargin] (
-	@SalesOrderID
+	@SalesOrderID INT
 )
-RETURNS MONEY()
+RETURNS MONEY
 AS
 BEGIN
-	SUM([LineTotal]) - SUM([OrderQty]*[StandardCost])
+	DECLARE @OrderMargin MONEY
+	SELECT @OrderMargin = SUM([LineTotal]) - SUM([OrderQty]*[StandardCost])
+	FROM [Sales].[SalesOrderDetail] AS D
+	INNER JOIN [Production].[Product] AS P
+		ON [D].[ProductID] = [P].[ProductID]
+	WHERE [SalesOrderID] = @SalesOrderID
+	GROUP BY [D].[SalesOrderID]
+RETURN @OrderMargin
 END
 GO
-
+-- Testing Answer
 DECLARE @TestOrders TABLE(
 	SalesOrderID INT
 )
-
 INSERT INTO @TestOrders (SalesOrderID)
 VALUES (NULL), (0), (43659), (43660)
-
 SELECT
 	SalesOrderID,
-	[dbo].[OrderProfit](SalesOrderID) AS [OrderProfit]
+	[dbo].[OrderMargin](SalesOrderID) AS [OrderMargin]
 FROM @TestOrders
- 
+GO
 
 -- Question  3: Write a function to test if a number is prime [dbo].[TestPrime]
 -- Use a BIT data type for the return value
@@ -302,10 +301,54 @@ D Date part string Date part number
 3141-05-09 Q 2
 3141-05-09 W 19
 3141-05-09 Y 3141
-
 */
+-- Attempt 1
+IF OBJECT_ID (N'[dbo].[DatePartFromString]') IS NOT NULL
+	DROP FUNCTION [dbo].[DatePartFromString]
+GO
+CREATE FUNCTION [dbo].[DatePartFromString] (
+	@D DATE,
+	@DatePart NVARCHAR(1)
+)
+RETURNS INT
+AS
+BEGIN
+	RETURN 
+		CASE
+			WHEN @DatePart = 'Y' THEN DATEPART(YEAR, @D)
+			WHEN @DatePart = 'Q' THEN DATEPART(QUARTER, @D)
+			WHEN @DatePart = 'M' THEN DATEPART(MONTH, @D)
+			WHEN @DatePart = 'W' THEN DATEPART(WEEK, @D)
+			WHEN @DatePart = 'D' THEN DATEPART(Day, @D)
+		END
+END
+GO
 
- 
+SELECT DISTINCT
+	[OrderDate],
+	[dbo].[DatePartFromString]([OrderDate], 'Y'),
+	[dbo].[DatePartFromString]([OrderDate], 'Q'),
+	[dbo].[DatePartFromString]([OrderDate], 'M'),
+	[dbo].[DatePartFromString]([OrderDate], 'W'),
+	[dbo].[DatePartFromString]([OrderDate], 'D')
+FROM [Sales].[SalesOrderHeader]
+GO
+
+
+
+DECLARE @TestDates TABLE(
+D DATE
+)
+DECLARE @DateParts TABLE(
+[DatePart] NVARCHAR(12)
+)
+INSERT INTO @TestDates (D) VALUES ('3141-5-9'), ('1011-12-13')
+INSERT INTO @DateParts ([DatePart]) VALUES ('Y'), ('Q'), ('M'), ('W'), ('D')
+SELECT
+	D,
+	[DatePart] AS [Date part string]
+FROM @TestDates CROSS JOIN @DateParts
+GO
 
 -- Question  5: Create function [dbo].[GetPeriodRange] that returns the start and end dates
 -- of a period for a given date.
@@ -345,8 +388,42 @@ D Date part string StartDate EndDate
 3141-05-09 Q 3141-04-01 3141-06-30
 3141-05-09 W 3141-05-04 3141-05-10
 3141-05-09 Y 3141-01-01 3141-12-31
-
 */
+-- Attempt 1
+IF OBJECT_ID (N'[dbo].[GetPeriodRange]') IS NOT NULL
+	DROP FUNCTION [dbo].[GetPeriodRange]
+GO
+CREATE FUNCTION [dbo].[GetPeriodRange](
+	@StartDate DATE,
+	@EndDate DATE
+)
+RETURNS TABLE
+AS RETURN
+BEGIN
+	SELECT
+		[StartDate],
+		[EndDate]
+	FROM 
+END
+
+
+DECLARE @TestDates TABLE(
+D DATE
+)
+DECLARE @DateParts TABLE(
+[DatePart] NVARCHAR(12)
+)
+INSERT INTO @TestDates (D) VALUES ('3141-5-9'), ('1011-12-13')
+INSERT INTO @DateParts ([DatePart]) VALUES ('Y'), ('Q'), ('M'), ('W'), ('D')
+SELECT
+	D,
+	[DatePart] AS [Date part string]
+FROM @TestDates CROSS JOIN @DateParts
+ORDER BY D, [DatePart]
+
+SELECT D, [DatePart] AS [Date part string], P.[StartDate], P.[EndDate]
+FROM @TestDates CROSS JOIN @DateParts CROSS APPLY [dbo].GetPeriodRange([Datepart], D) P
+ORDER BY D, [DatePart]
 
 
 -- Question  6: Create function[dbo].[GetProductPeriodSales] to
@@ -484,6 +561,62 @@ Requested Product ProductID Requested Quantity Available Qty Enough Inventory
 -- Use return code -1 to indicate not enough inventory
 -- Use return code 0 to indicate detail inserted; there
 -- is enough inventory.
+
+--Homework example 
+
+-- Attempt 1
+CREATE PROCEDURE [dbo].[InsertSalesOrderDetail]
+
+IF @avaliability < @orderQuantity RETURN -1 
+IF @UnitPrice IS NULL RETURN -2
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM [Sales].[SalesOrderHeader]
+	WHERE [SalesOrderID] = @OrderID
+)
+RETURN -3
+IF EXISTS (
+	SELECT
+		1
+	FROM [Sales].[SalesOrderDetail]
+	WHERE [SalesOrderID] = @OrderID
+	AND [ProductID] = @prodID
+)
+RETURN -4
+
+
+BEGIN TRAN
+INSERT INTO [Sales].[SalesOrderDetail] (
+	[SalesOrderID],
+	[CarrierTrackingNumber],
+	[OrderQty],
+	[ProductID],
+	[SpecialOfferID],
+	[UnitPrice],
+	[rowguid],
+	[ModifiedDate]
+)
+VALUES (
+	@OrderID,
+	@TrackingNum,
+	@OrderQuantity,
+	@prodID,
+	@promo,
+	@UnitPrice,
+	@UnitPriceDiscount,
+	NEWID(),
+	@ModifiedDate
+)
+
+DECLARE @QuanitityAtLocation INT
+DECLARE @LocationID SMALLINT
+	WHILE @OrderQuantity > 0
+	BEGIN
+		
+	END
+
+
 
 -- Question  10: Write SQL stored procedure that allows you to
 -- update the cost value of a product, as a percental change,
