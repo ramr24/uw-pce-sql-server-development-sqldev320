@@ -11,6 +11,7 @@
 ** ----------	------------------  ---------------
 ** 2023-05-15	Ramkumar Rajanbabu	Started assignment
 ** 2023-05-22	Ramkumar Rajanbabu	Completed q1, q2
+** 2023-05-23	Ramkumar Rajanbabu	Completed q3
 **************************************************/
 
 -- Access Database
@@ -249,7 +250,44 @@ NULL NULL NULL
 13 13 1
 123 123 0
 */
+-- Attempt 1: Final Answer
+IF OBJECT_ID (N'[dbo].[TestPrime]') IS NOT NULL
+	DROP FUNCTION [dbo].[TestPrime]
+GO
+CREATE FUNCTION [dbo].[TestPrime] (
+	@N INT
+)
+RETURNS BIT
+AS
+BEGIN
+	DECLARE @Result BIT = 1
+	DECLARE @I INT = 2
+	WHILE (@I < @N)
+	BEGIN
+		IF(@N % @I = 0)
+		BEGIN
+			SET @Result = 0
+			BREAK
+		END
+		SET @I += 1
+	END
+	RETURN @Result
+END
+GO
 
+
+
+-- Testing Answer
+DECLARE @TestNumbers TABLE(
+	N INT
+)
+INSERT INTO @TestNumbers (N)
+VALUES (-11), (-8), (-4.99), (-3.5), (-2.1), (-1.0), (NULL), (0), (1), (2), (3.1), (4.5), (5.99), (7), (13), (123)
+SELECT
+	N,
+	CAST(N AS INT) [Int part of N],
+	[dbo].[TestPrime](N) [Is Prime]
+FROM @TestNumbers
 
 -- Question  4: Create function [dbo].[DatePartFromString] that returns the DATEPART of a date
 -- from a string that matches all or part of the DATEPART argument
