@@ -11,7 +11,7 @@
 ** ----------	------------------  ---------------
 ** 2023-05-15	Ramkumar Rajanbabu	Started assignment
 ** 2023-05-22	Ramkumar Rajanbabu	Completed q1, q2
-** 2023-05-23	Ramkumar Rajanbabu	Completed q3, q4
+** 2023-05-23	Ramkumar Rajanbabu	Completed q3, q4, q9
 **************************************************/
 
 -- Access Database
@@ -415,38 +415,45 @@ D Date part string StartDate EndDate
 IF OBJECT_ID (N'[dbo].[GetPeriodRange]') IS NOT NULL
 	DROP FUNCTION [dbo].[GetPeriodRange]
 GO
-CREATE FUNCTION [dbo].[GetPeriodRange](
-	@StartDate DATE,
-	@EndDate DATE
+CREATE FUNCTION [dbo].[GetPeriodRange] (
+	@DatePart NVARCHAR(1),
+	@D DATE
 )
-RETURNS TABLE
-AS RETURN
+RETURNS @GetPeriodRangeTable TABLE (
+	StartDate DATE,
+	EndDate DATE
+)
+AS
 BEGIN
-	SELECT
-		[StartDate],
+	INSERT INTO @GetPeriodRangeTable
+	SELECT 
+		[StartDate] = @D,
 		[EndDate]
-	FROM 
+	CASE
+		WHEN @DatePart = 'Y' THEN DATEPART(YEAR, @D)
+		WHEN @DatePart = 'Q' THEN DATEPART(QUARTER, @D)
+		WHEN @DatePart = 'M' THEN DATEPART(MONTH, @D)
+		WHEN @DatePart = 'W' THEN DATEPART(WEEK, @D)
+		WHEN @DatePart = 'D' THEN DATEPART(Day, @D)
+	END A
 END
+GO
 
-
+-- Testing Answer
 DECLARE @TestDates TABLE(
 D DATE
 )
 DECLARE @DateParts TABLE(
 [DatePart] NVARCHAR(12)
 )
-INSERT INTO @TestDates (D) VALUES ('3141-5-9'), ('1011-12-13')
-INSERT INTO @DateParts ([DatePart]) VALUES ('Y'), ('Q'), ('M'), ('W'), ('D')
-SELECT
-	D,
-	[DatePart] AS [Date part string]
-FROM @TestDates CROSS JOIN @DateParts
-ORDER BY D, [DatePart]
-
+INSERT INTO @TestDates (D)
+VALUES ('3141-5-9'), ('1011-12-13')
+INSERT INTO @DateParts ([DatePart])
+VALUES ('Y'), ('Q'), ('M'), ('W'), ('D')
 SELECT D, [DatePart] AS [Date part string], P.[StartDate], P.[EndDate]
 FROM @TestDates CROSS JOIN @DateParts CROSS APPLY [dbo].GetPeriodRange([Datepart], D) P
 ORDER BY D, [DatePart]
-
+GO
 
 -- Question  6: Create function[dbo].[GetProductPeriodSales] to
 -- get the total sales of product, for the specified period of time,
@@ -583,62 +590,97 @@ Requested Product ProductID Requested Quantity Available Qty Enough Inventory
 -- Use return code -1 to indicate not enough inventory
 -- Use return code 0 to indicate detail inserted; there
 -- is enough inventory.
-
---Homework example 
-
--- Attempt 1
+-- Attempt 1: Final Answer
 CREATE PROCEDURE [dbo].[InsertSalesOrderDetail]
+	@OrderID INT,
+	@TrackingNum NVARCHAR(25) = NULL,
+	@OrderQuantity INT,
+	@prodID INT,
+	@promo INT = 1,
+	@UnitPriceDiscount MONEY = 0.00
+AS
+	DECLARE @ModifiedDate DATETIME = GETDATE()
+	DECLARE @UnitPrice MONEY = (
+		SELECT pd.ListPrice
+		FROM Production.Product as PD
+		WHERE PD.ProductID = @prodID
+	)
+	DECLARE @avalability INT = (
+		SELECT SUM(PINV.Quantity)
+		FROM Production.ProductInventory AS PINV
+		WHERE PINV.ProductID = @prodID
+	)
 
-IF @avaliability < @orderQuantity RETURN -1 
-IF @UnitPrice IS NULL RETURN -2
-IF NOT EXISTS (
-	SELECT
-		1
-	FROM [Sales].[SalesOrderHeader]
-	WHERE [SalesOrderID] = @OrderID
-)
-RETURN -3
-IF EXISTS (
-	SELECT
-		1
-	FROM [Sales].[SalesOrderDetail]
-	WHERE [SalesOrderID] = @OrderID
-	AND [ProductID] = @prodID
-)
-RETURN -4
-
-
-BEGIN TRAN
-INSERT INTO [Sales].[SalesOrderDetail] (
-	[SalesOrderID],
-	[CarrierTrackingNumber],
-	[OrderQty],
-	[ProductID],
-	[SpecialOfferID],
-	[UnitPrice],
-	[rowguid],
-	[ModifiedDate]
-)
-VALUES (
-	@OrderID,
-	@TrackingNum,
-	@OrderQuantity,
-	@prodID,
-	@promo,
-	@UnitPrice,
-	@UnitPriceDiscount,
-	NEWID(),
-	@ModifiedDate
-)
-
-DECLARE @QuanitityAtLocation INT
-DECLARE @LocationID SMALLINT
-	WHILE @OrderQuantity > 0
-	BEGIN
-		
-	END
+	IF @avalability < @OrderQuantity RETURN -1 
+	IF @UnitPrice IS NULL RETURN -2
+	IF NOT EXISTS (
+		SELECT
+			1
+		FROM [Sales].[SalesOrderHeader]
+		WHERE [SalesOrderID] = @OrderID
+	)
+	RETURN -3
+	IF EXISTS (
+		SELECT
+			1
+		FROM [Sales].[SalesOrderDetail]
+		WHERE [SalesOrderID] = @OrderID
+		AND [ProductID] = @prodID
+	)
+	RETURN -4
 
 
+	BEGIN TRAN
+	INSERT INTO [Sales].[SalesOrderDetail] (
+		[SalesOrderID],
+		[CarrierTrackingNumber],
+		[OrderQty],
+		[ProductID],
+		[SpecialOfferID],
+		[UnitPrice],
+		[UnitPriceDiscount],
+		[rowguid],
+		[ModifiedDate]
+	)
+	VALUES (
+		@OrderID,
+		@TrackingNum,
+		@OrderQuantity,
+		@prodID,
+		@promo,
+		@UnitPrice,
+		@UnitPriceDiscount,
+		NEWID(),
+		@ModifiedDate
+	)
+
+	DECLARE @QuanitityAtLocation INT
+	DECLARE @LocationID SMALLINT
+		WHILE @OrderQuantity > 0
+		BEGIN
+			SELECT TOP 1 @QuanitityAtLocation = [Quantity], @LocationID = [LocationID]
+				FROM [Production].[ProductInventory]
+				WHERE [ProductID] = @prodID
+				ORDER BY [Quantity] DESC
+			IF @QuanitityAtLocation >= @OrderQuantity
+			BEGIN
+				UPDATE [Production].[ProductInventory]
+					SET [Quantity] -= @OrderQuantity
+					WHERE [ProductID] = @prodID
+					AND [LocationID] = @LocationID
+				SET @OrderQuantity = 0
+			END
+			ELSE
+			BEGIN
+				UPDATE [Production].[ProductInventory]
+					SET [Quantity] = 0
+					WHERE [ProductID] = @prodID
+					AND [LocationID] = @LocationID
+				SET @OrderQuantity -= @QuanitityAtLocation
+			END
+		END
+	COMMIT
+GO
 
 -- Question  10: Write SQL stored procedure that allows you to
 -- update the cost value of a product, as a percental change,
