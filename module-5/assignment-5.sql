@@ -577,7 +577,35 @@ Requested Product ProductID Requested Quantity Available Qty Enough Inventory
 -- around given date.
 --
 -- Periods of time are: All, Year, Quarter, Month, Week, Day
+-- Attempt 1
+--IF OBJECT_ID (N'[dbo].[TopNProductsInPeriod]') IS NOT NULL
+--	DROP PROCEDURE [dbo].[TopNProductsInPeriod]
+--GO
+--CREATE PROCEDURE [dbo].[TopNProductsInPeriod]
+--AS
+--SELECT 
+--	TOP 10 [Name]
+--FROM [Production].[Product]
+--GO
+--EXEC [dbo].[TopNProductsInPeriod]
+--GO
+-- Attempt 2
+IF OBJECT_ID (N'[dbo].[TopNProductsInPeriod]') IS NOT NULL
+	DROP PROCEDURE [dbo].[TopNProductsInPeriod]
+GO
+CREATE PROCEDURE [dbo].[TopNProductsInPeriod]
+AS
+SELECT 
+	TOP 10 [Name]
+FROM [Production].[Product]
+GO
+EXEC [dbo].[TopNProductsInPeriod]
+GO
 
+SELECT 
+	*
+FROM [Production].[Product]
+GO
 
 -- Question  9: Create a stored procedure to insert a detail
 -- line in [Sales].[SalesOrderDetail], for a
