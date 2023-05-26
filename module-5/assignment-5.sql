@@ -12,6 +12,7 @@
 ** 2023-05-15	Ramkumar Rajanbabu	Started assignment
 ** 2023-05-22	Ramkumar Rajanbabu	Completed q1, q2
 ** 2023-05-23	Ramkumar Rajanbabu	Completed q3, q4, q9
+** 2023-05-25	Ramkumar Rajanbabu	Fixed q1
 **************************************************/
 
 -- Access Database
@@ -97,22 +98,25 @@ IF OBJECT_ID (N'[dbo].[ColorToSpanish]') IS NOT NULL
 	DROP FUNCTION [dbo].[ColorToSpanish]
 GO
 CREATE FUNCTION [dbo].[ColorToSpanish] (
-	@Color NVARCHAR(20)
+	@Color NVARCHAR(12)
 )
-RETURNS NVARCHAR(20)
+RETURNS NVARCHAR(12)
 AS
 BEGIN
-	RETURN 
+	RETURN
 		CASE
-			WHEN @Color = 'Black' THEN 'Negro'
-			WHEN @Color = 'Blue' THEN 'Azul'
-			WHEN @Color = 'Grey' THEN 'Gris'
-			WHEN @Color = 'Multi' THEN 'Indefinido'
-			WHEN @Color = 'Red' THEN 'Rojo'
-			WHEN @Color = 'Silver' THEN 'Plata'
-			WHEN @Color = 'Silver/Black' THEN 'Indefinido'
-			WHEN @Color = 'White' THEN 'Blanco'
-			WHEN @Color = 'Yellow' THEN 'Amarillo'
+			WHEN @Color IS NULL THEN NULL
+			ELSE
+				Case @Color
+					WHEN 'Black' THEN 'Negro'
+					WHEN 'Blue' THEN 'Azul'
+					WHEN 'Grey' THEN 'Gris'
+					WHEN 'Red' THEN 'Rojo'
+					WHEN 'Silver' THEN 'Plata'
+					WHEN 'White' THEN 'Blanco'
+					WHEN 'Yellow' THEN 'Amarillo'
+					ELSE 'Indefinido'
+				END
 		END
 END
 GO
