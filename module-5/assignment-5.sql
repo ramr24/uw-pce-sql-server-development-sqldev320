@@ -12,7 +12,7 @@
 ** 2023-05-15	Ramkumar Rajanbabu	Started assignment
 ** 2023-05-22	Ramkumar Rajanbabu	Completed q1, q2
 ** 2023-05-23	Ramkumar Rajanbabu	Completed q3, q4, q9
-** 2023-05-25	Ramkumar Rajanbabu	Fixed q1
+** 2023-05-25	Ramkumar Rajanbabu	Fixed q1, q2
 **************************************************/
 
 -- Access Database
@@ -198,15 +198,18 @@ CREATE FUNCTION [dbo].[OrderMargin] (
 	@SalesOrderID INT
 )
 RETURNS MONEY
+WITH RETURNS NULL ON NULL INPUT
 AS
 BEGIN
+	-- IF (@SalesOrder IS NULL) RETURN NULL
+	IF NOT EXISTS (SELECT 1 FROM [Sales].[SalesOrderHeader] WHERE [SalesOrderID] = @SalesOrderID) RETURN NULL
+	
 	DECLARE @OrderMargin MONEY
-	SELECT @OrderMargin = SUM([LineTotal]) - SUM([OrderQty]*[StandardCost])
+	SELECT @OrderMargin = CAST(SUM([LineTotal]) - SUM([OrderQty]*[StandardCost]) AS MONEY)
 	FROM [Sales].[SalesOrderDetail] AS D
 	INNER JOIN [Production].[Product] AS P
 		ON [D].[ProductID] = [P].[ProductID]
 	WHERE [SalesOrderID] = @SalesOrderID
-	GROUP BY [D].[SalesOrderID]
 RETURN @OrderMargin
 END
 GO
