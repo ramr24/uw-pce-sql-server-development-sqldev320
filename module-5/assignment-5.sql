@@ -12,7 +12,7 @@
 ** 2023-05-15	Ramkumar Rajanbabu	Started assignment
 ** 2023-05-22	Ramkumar Rajanbabu	Completed q1, q2
 ** 2023-05-23	Ramkumar Rajanbabu	Completed q3, q4, q9
-** 2023-05-25	Ramkumar Rajanbabu	Fixed q1, q2
+** 2023-05-25	Ramkumar Rajanbabu	Fixed q1, q2, q3
 **************************************************/
 
 -- Access Database
@@ -267,23 +267,21 @@ CREATE FUNCTION [dbo].[TestPrime] (
 RETURNS BIT
 AS
 BEGIN
-	DECLARE @Result BIT = 1
+	IF (@N IS NULL OR @N = 0) RETURN NULL
+	IF @N < 0 SET @N *= -1
+
 	DECLARE @I INT = 2
-	WHILE (@I < @N)
+	WHILE (@I * @I) <= @N
 	BEGIN
-		IF(@N % @I = 0)
-		BEGIN
-			SET @Result = 0
-			BREAK
-		END
+		IF(@N % @I) = 0 RETURN 0
 		SET @I += 1
 	END
-	RETURN @Result
+	RETURN 1
 END
 GO
 -- Testing Answer
 DECLARE @TestNumbers TABLE(
-	N INT
+	N FLOAT
 )
 INSERT INTO @TestNumbers (N)
 VALUES (-11), (-8), (-4.99), (-3.5), (-2.1), (-1.0), (NULL), (0), (1), (2), (3.1), (4.5), (5.99), (7), (13), (123)
