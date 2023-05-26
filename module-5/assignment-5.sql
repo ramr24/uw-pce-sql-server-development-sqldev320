@@ -347,19 +347,24 @@ IF OBJECT_ID (N'[dbo].[DatePartFromString]') IS NOT NULL
 	DROP FUNCTION [dbo].[DatePartFromString]
 GO
 CREATE FUNCTION [dbo].[DatePartFromString] (
-	@DatePart NVARCHAR(1),
+	@DatePart NVARCHAR(12),
 	@D DATE
 )
 RETURNS INT
 AS
 BEGIN
+	IF @DatePart IS NULL OR @Date IS NULL RETURN NULL
+	DECLARE @Part INT
+	SELECT @Part = CASE
+	WHEN 'YEAR' LIKE @DatePart + '%' THEN DATEPART(YEAR, @Date)
+		
 	RETURN
 		CASE
-			WHEN @DatePart = 'Y' THEN DATEPART(YEAR, @D)
-			WHEN @DatePart = 'Q' THEN DATEPART(QUARTER, @D)
-			WHEN @DatePart = 'M' THEN DATEPART(MONTH, @D)
-			WHEN @DatePart = 'W' THEN DATEPART(WEEK, @D)
-			WHEN @DatePart = 'D' THEN DATEPART(Day, @D)
+			WHEN @DatePart = 'Year' THEN DATEPART(YEAR, @D)
+			WHEN @DatePart = 'Quarter' THEN DATEPART(QUARTER, @D)
+			WHEN @DatePart = 'Month' THEN DATEPART(MONTH, @D)
+			WHEN @DatePart = 'Week' THEN DATEPART(WEEK, @D)
+			WHEN @DatePart = 'Day' THEN DATEPART(Day, @D)
 		END
 END
 GO
@@ -430,17 +435,28 @@ RETURNS @GetPeriodRangeTable TABLE (
 )
 AS
 BEGIN
-	INSERT INTO @GetPeriodRangeTable
+	IF @DatePart IS NULL OR @Date IS NULL
+		INSERT INTO @GetPeriodRangeTable VALUES (NULL, NULL)
+	ELSE
+		INSERT INTO @GetPeriodRangeTable
 	SELECT 
-		[StartDate] = @D,
-		[EndDate]
-	CASE
-		WHEN @DatePart = 'Y' THEN DATEPART(YEAR, @D)
-		WHEN @DatePart = 'Q' THEN DATEPART(QUARTER, @D)
-		WHEN @DatePart = 'M' THEN DATEPART(MONTH, @D)
-		WHEN @DatePart = 'W' THEN DATEPART(WEEK, @D)
-		WHEN @DatePart = 'D' THEN DATEPART(Day, @D)
-	END A
+		CASE
+			WHEN 'Year' LIKE @DatePart + '%' + THEN (DATEPART(YEAR, @Date), 1, 1)
+			WHEN 'Quarter' LIKE @DatePart + '%' + THEN (DATEPART(QUARTER, @Date), 1, 1)
+			WHEN 'Month' LIKE @DatePart + '%' + THEN (DATEPART(MONTH, @Date), 1, 1)
+			WHEN 'Week' LIKE @DatePart + '%' + THEN (DATEPART(WEEK, @Date), 1, 1)
+			WHEN 'Day' LIKE @DatePart + '%' + THEN (DATEPART(DAY, @Date), 1, 1)
+			ELSE NULL
+		END AS [StartDate],
+		CASE
+			WHEN 'Year' LIKE @DatePart + '%' + THEN (DATEPART(YEAR, @Date), 1, 1)
+			WHEN 'Quarter' LIKE @DatePart + '%' + THEN (DATEPART(QUARTER, @Date), 1, 1)
+			WHEN 'Month' LIKE @DatePart + '%' + THEN (DATEPART(MONTH, @Date), 1, 1)
+			WHEN 'Week' LIKE @DatePart + '%' + THEN (DATEPART(WEEK, @Date), 1, 1)
+			WHEN 'Day' LIKE @DatePart + '%' + THEN (DATEPART(DAY, @Date), 1, 1)
+			ELSE NULL
+		END AS [EndDate]
+	RETURN
 END
 GO
 
@@ -499,8 +515,30 @@ D Date part string StartDate EndDate TotalSales
 2013-12-13 Q 2013-10-01 2013-12-31 587058.442
 2013-12-13 W 2013-12-08 2013-12-14 16064.93
 2013-12-13 Y 2013-01-01 2013-12-31 2212974.7827
-
 */
+-- Attempt 1
+IF OBJECT_ID (N'[dbo].[GetProductPeriodSales]') IS NOT NULL
+	DROP FUNCTION [dbo].[GetProductPeriodSales]
+GO
+CREATE FUNCTION [dbo].[GetProductPeriodSales] (
+	@ProductId UINT,
+	@Period,
+	@
+)
+RETURNS MONEY
+AS
+BEGIN
+	IF 
+	DECLARE
+	DECLARE
+	DECLARE
+
+	ELSE
+	BEGIN
+		SELECT A
+		SELECT @Sales
+	END
+
 
 
 -- Question  7: Create a function [dbo].[TestInventory] to
@@ -574,6 +612,7 @@ Requested Product ProductID Requested Quantity Available Qty Enough Inventory
 882 882 50 0 0
 882 882 500 0 0
 */
+-- Attempt 1
 
  
 
@@ -583,34 +622,30 @@ Requested Product ProductID Requested Quantity Available Qty Enough Inventory
 --
 -- Periods of time are: All, Year, Quarter, Month, Week, Day
 -- Attempt 1
---IF OBJECT_ID (N'[dbo].[TopNProductsInPeriod]') IS NOT NULL
---	DROP PROCEDURE [dbo].[TopNProductsInPeriod]
---GO
---CREATE PROCEDURE [dbo].[TopNProductsInPeriod]
---AS
---SELECT 
---	TOP 10 [Name]
---FROM [Production].[Product]
---GO
---EXEC [dbo].[TopNProductsInPeriod]
---GO
--- Attempt 2
 IF OBJECT_ID (N'[dbo].[TopNProductsInPeriod]') IS NOT NULL
 	DROP PROCEDURE [dbo].[TopNProductsInPeriod]
 GO
 CREATE PROCEDURE [dbo].[TopNProductsInPeriod]
+	@TopN INT,
+	@Period NVARCHAR(12),
+	@Date DATE
 AS
-SELECT 
-	TOP 10 [Name]
-FROM [Production].[Product]
+	DECLARE @StartDate DATE
+	DECLARE @EndDate DATE
+	SELECT @StartDate = R.[StartDate], @EndDate = R.[EndDate] FROM [dbo].[GetPeriodRange](@Period, @Date) R;
+
+	WITH TopNP
+	SELECT P.[ProductID], P.[Name], T.[Sales Total]
+	FROM [Production].[Product] P
+	INNER JOIN TopNProducts T
+		ON
 GO
+
+
+
 EXEC [dbo].[TopNProductsInPeriod]
 GO
 
-SELECT 
-	*
-FROM [Production].[Product]
-GO
 
 -- Question  9: Create a stored procedure to insert a detail
 -- line in [Sales].[SalesOrderDetail], for a
