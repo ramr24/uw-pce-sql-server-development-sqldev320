@@ -14,6 +14,7 @@
 ** 2023-05-23	Ramkumar Rajanbabu	Completed q3, q4, q9
 ** 2023-05-25	Ramkumar Rajanbabu	Fixed q1, q2, q3
 ** 2023-05-27	Ramkumar Rajanbabu	Fixed q4. Completed q5
+** 2023-05-28	Ramkumar Rajanbabu	Incomplete q6. Completed q7, q8
 **************************************************/
 
 -- Access Database
@@ -506,22 +507,21 @@ BEGIN
 	RETURN
 END
 GO
-
 -- Testing Answer
-DECLARE @TestDates TABLE(
-D DATE
-)
-DECLARE @DateParts TABLE(
-[DatePart] NVARCHAR(12)
-)
-INSERT INTO @TestDates (D)
-VALUES ('3141-5-9'), ('1011-12-13')
-INSERT INTO @DateParts ([DatePart])
-VALUES ('Y'), ('Q'), ('M'), ('W'), ('D')
-SELECT D, [DatePart] AS [Date part string], P.[StartDate], P.[EndDate]
-FROM @TestDates CROSS JOIN @DateParts CROSS APPLY [dbo].GetPeriodRange([Datepart], D) P
-ORDER BY D, [DatePart]
-GO
+--DECLARE @TestDates TABLE(
+--D DATE
+--)
+--DECLARE @DateParts TABLE(
+--[DatePart] NVARCHAR(12)
+--)
+--INSERT INTO @TestDates (D)
+--VALUES ('3141-5-9'), ('1011-12-13')
+--INSERT INTO @DateParts ([DatePart])
+--VALUES ('Y'), ('Q'), ('M'), ('W'), ('D')
+--SELECT D, [DatePart] AS [Date part string], P.[StartDate], P.[EndDate]
+--FROM @TestDates CROSS JOIN @DateParts CROSS APPLY [dbo].GetPeriodRange([Datepart], D) P
+--ORDER BY D, [DatePart]
+--GO
 
 -- Question  6: Create function[dbo].[GetProductPeriodSales] to
 -- get the total sales of product, for the specified period of time,
@@ -563,7 +563,12 @@ D Date part string StartDate EndDate TotalSales
 2013-12-13 W 2013-12-08 2013-12-14 16064.93
 2013-12-13 Y 2013-01-01 2013-12-31 2212974.7827
 */
--- Attempt 1
+-- Attempt 1: Having trouble accessing [dbo].GetPeriodRange()
+-- Error Message
+--Msg 102, Level 15, State 1, Procedure GetProductPeriodSales, Line 9 [Batch Start Line 568]
+--Incorrect syntax near ')'.
+--Msg 102, Level 15, State 1, Procedure GetProductPeriodSales, Line 17 [Batch Start Line 568]
+--Incorrect syntax near ')'.
 DROP FUNCTION IF EXISTS [dbo].[GetProductPeriodSales]
 GO
 CREATE FUNCTION [dbo].[GetProductPeriodSales] (
