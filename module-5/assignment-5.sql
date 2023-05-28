@@ -13,6 +13,7 @@
 ** 2023-05-22	Ramkumar Rajanbabu	Completed q1, q2
 ** 2023-05-23	Ramkumar Rajanbabu	Completed q3, q4, q9
 ** 2023-05-25	Ramkumar Rajanbabu	Fixed q1, q2, q3
+** 2023-05-27	Ramkumar Rajanbabu	Fixed q4. Completed q5
 **************************************************/
 
 -- Access Database
@@ -343,29 +344,29 @@ D Date part string Date part number
 3141-05-09 Y 3141
 */
 -- Attempt 1: Final Answer
-IF OBJECT_ID (N'[dbo].[DatePartFromString]') IS NOT NULL
-	DROP FUNCTION [dbo].[DatePartFromString]
+DROP FUNCTION IF EXISTS [dbo].[DatePartFromString]
 GO
 CREATE FUNCTION [dbo].[DatePartFromString] (
 	@DatePart NVARCHAR(12),
-	@D DATE
+	@Date DATE
 )
 RETURNS INT
 AS
 BEGIN
-	IF @DatePart IS NULL OR @Date IS NULL RETURN NULL
+	IF @DatePart IS NULL
+		OR @Date IS NULL
+		RETURN NULL
 	DECLARE @Part INT
-	SELECT @Part = CASE
-	WHEN 'YEAR' LIKE @DatePart + '%' THEN DATEPART(YEAR, @Date)
-		
-	RETURN
-		CASE
-			WHEN @DatePart = 'Year' THEN DATEPART(YEAR, @D)
-			WHEN @DatePart = 'Quarter' THEN DATEPART(QUARTER, @D)
-			WHEN @DatePart = 'Month' THEN DATEPART(MONTH, @D)
-			WHEN @DatePart = 'Week' THEN DATEPART(WEEK, @D)
-			WHEN @DatePart = 'Day' THEN DATEPART(Day, @D)
-		END
+	SELECT
+		@Part = CASE
+					WHEN 'Year' LIKE @DatePart + '%' THEN DATEPART(YEAR, @Date)
+					WHEN 'Quarter' LIKE @DatePart + '%' THEN DATEPART(QUARTER, @Date)
+					WHEN 'Month' LIKE @DatePart + '%' THEN DATEPART(MONTH, @Date)
+					WHEN 'Week' LIKE @DatePart + '%' THEN DATEPART(WEEK, @Date)
+					WHEN 'Day' LIKE @DatePart + '%' THEN DATEPART(Day, @Date)
+					ELSE NULL
+				END
+	RETURN @Part
 END
 GO
 -- Testing Answer
@@ -422,12 +423,48 @@ D Date part string StartDate EndDate
 3141-05-09 Y 3141-01-01 3141-12-31
 */
 -- Attempt 1
-IF OBJECT_ID (N'[dbo].[GetPeriodRange]') IS NOT NULL
-	DROP FUNCTION [dbo].[GetPeriodRange]
+--DROP FUNCTION IF EXISTS [dbo].[GetPeriodRange]
+--GO
+--CREATE FUNCTION [dbo].[GetPeriodRange] (
+--	@DatePart NVARCHAR(1),
+--	@Date DATE
+--)
+--RETURNS @GetPeriodRangeTable TABLE (
+--	StartDate DATE,
+--	EndDate DATE
+--)
+--AS
+--BEGIN
+--	IF @DatePart IS NULL OR @Date IS NULL
+--		INSERT INTO @GetPeriodRangeTable VALUES (NULL, NULL)
+--	ELSE
+--		INSERT INTO @GetPeriodRangeTable
+--	SELECT
+--		CASE
+--			WHEN 'Year' LIKE @DatePart + '%' THEN @Date
+--			WHEN 'Quarter' LIKE @DatePart + '%' THEN @Date
+--			WHEN 'Month' LIKE @DatePart + '%' THEN @Date
+--			WHEN 'Week' LIKE @DatePart + '%' THEN @Date
+--			WHEN 'Day' LIKE @DatePart + '%' THEN @Date
+--			ELSE NULL
+--		END AS [StartDate],
+--		CASE
+--			WHEN 'Year' LIKE @DatePart + '%' THEN @Date
+--			WHEN 'Quarter' LIKE @DatePart + '%' THEN @Date
+--			WHEN 'Month' LIKE @DatePart + '%' THEN @Date
+--			WHEN 'Week' LIKE @DatePart + '%' THEN @Date
+--			WHEN 'Day' LIKE @DatePart + '%' THEN @Date
+--			ELSE NULL
+--		END AS [EndDate]
+--	RETURN
+--END
+--GO
+-- Attempt 2: Final Answer
+DROP FUNCTION IF EXISTS [dbo].[GetPeriodRange]
 GO
 CREATE FUNCTION [dbo].[GetPeriodRange] (
 	@DatePart NVARCHAR(1),
-	@D DATE
+	@Date DATE
 )
 RETURNS @GetPeriodRangeTable TABLE (
 	StartDate DATE,
@@ -439,21 +476,31 @@ BEGIN
 		INSERT INTO @GetPeriodRangeTable VALUES (NULL, NULL)
 	ELSE
 		INSERT INTO @GetPeriodRangeTable
-	SELECT 
+	SELECT
 		CASE
-			WHEN 'Year' LIKE @DatePart + '%' + THEN (DATEPART(YEAR, @Date), 1, 1)
-			WHEN 'Quarter' LIKE @DatePart + '%' + THEN (DATEPART(QUARTER, @Date), 1, 1)
-			WHEN 'Month' LIKE @DatePart + '%' + THEN (DATEPART(MONTH, @Date), 1, 1)
-			WHEN 'Week' LIKE @DatePart + '%' + THEN (DATEPART(WEEK, @Date), 1, 1)
-			WHEN 'Day' LIKE @DatePart + '%' + THEN (DATEPART(DAY, @Date), 1, 1)
+			WHEN 'Year' LIKE @DatePart + '%' 
+				THEN DATEFROMPARTS(DATEPART(YEAR, @Date), 1, 1)
+			WHEN 'Quarter' LIKE @DatePart + '%' 
+				THEN DATEFROMPARTS(DATEPART(YEAR, @Date), (DATEPART(QUARTER, @Date)-1)*3 + 1, 1)
+			WHEN 'Month' LIKE @DatePart + '%' 
+				THEN DATEFROMPARTS(DATEPART(YEAR, @Date), DATEPART(MONTH, @Date), 1)
+			WHEN 'Week' LIKE @DatePart + '%' 
+				THEN DATEADD(DAY, -DATEPART(WEEKDAY, @Date) + 1, @Date)
+			WHEN 'Day' LIKE @DatePart + '%' 
+				THEN @Date
 			ELSE NULL
 		END AS [StartDate],
 		CASE
-			WHEN 'Year' LIKE @DatePart + '%' + THEN (DATEPART(YEAR, @Date), 1, 1)
-			WHEN 'Quarter' LIKE @DatePart + '%' + THEN (DATEPART(QUARTER, @Date), 1, 1)
-			WHEN 'Month' LIKE @DatePart + '%' + THEN (DATEPART(MONTH, @Date), 1, 1)
-			WHEN 'Week' LIKE @DatePart + '%' + THEN (DATEPART(WEEK, @Date), 1, 1)
-			WHEN 'Day' LIKE @DatePart + '%' + THEN (DATEPART(DAY, @Date), 1, 1)
+			WHEN 'Year' LIKE @DatePart + '%' 
+				THEN DATEFROMPARTS(DATEPART(YEAR, @Date), 12, 31)
+			WHEN 'Quarter' LIKE @DatePart + '%' 
+				THEN EOMONTH(DATEFROMPARTS(DATEPART(YEAR, @Date), (DATEPART(QUARTER, @Date)-1)*3 + 3, 1))
+			WHEN 'Month' LIKE @DatePart + '%' 
+				THEN EOMONTH(@Date)
+			WHEN 'Week' LIKE @DatePart + '%' 
+				THEN DATEADD(DAY, 7 - DATEPART(WEEKDAY, @Date), @Date)
+			WHEN 'Day' LIKE @DatePart + '%' 
+				THEN @Date
 			ELSE NULL
 		END AS [EndDate]
 	RETURN
@@ -517,29 +564,63 @@ D Date part string StartDate EndDate TotalSales
 2013-12-13 Y 2013-01-01 2013-12-31 2212974.7827
 */
 -- Attempt 1
-IF OBJECT_ID (N'[dbo].[GetProductPeriodSales]') IS NOT NULL
-	DROP FUNCTION [dbo].[GetProductPeriodSales]
+DROP FUNCTION IF EXISTS [dbo].[GetProductPeriodSales]
 GO
 CREATE FUNCTION [dbo].[GetProductPeriodSales] (
-	@ProductId UINT,
-	@Period,
-	@
+	@ProductId INT,
+	@Period NVARCHAR(12),
+	@Date DATE
 )
 RETURNS MONEY
 AS
 BEGIN
-	IF 
-	DECLARE
-	DECLARE
-	DECLARE
-
+	IF @ProductId IS NULL OR @Period IS NULL OR @Date IS NULL) RETURN NULL
+	DECLARE @Sales MONEY = 0
+	DECLARE @StartDate DATE
+	DECLARE @EndDate DATE
+	
+	IF @Period = 'ALL'
+		SELECT 
+			@SALES = SUM([LineTotal])
+		FROM [Sales].[SalesOrderDetail])
+		WHERE [ProductID] = @ProductId
 	ELSE
 	BEGIN
-		SELECT A
-		SELECT @Sales
+		SELECT 
+			@StartDate = P.[StartDate],
+			@EndDate = P.[EndDate]
+		FROM [dbo].[GetPeriodRange](@Period, @Date) P
+		SELECT 
+			@SALES = SUM([LineTotal])
+		FROM [Sales].[SalesOrderDetail] D
+		INNER JOIN [Sales].[SalesOrderHeader] H
+			ON D.[SalesOrderID] = H.[SalesOrderID]
+		WHERE [ProductID] = @ProductId
+		AND H.[OrderDate]
+		BETWEEN @StartDate
+		AND @EndDate
 	END
-
-
+	RETURN @Sales
+END
+GO
+-- Testing Answer
+DECLARE @TestDates TABLE(
+D DATE
+)
+DECLARE @DateParts TABLE(
+[DatePart] NVARCHAR(12)
+)
+INSERT INTO @TestDates (D) VALUES ('2012-5-9'), ('2013-12-13')
+INSERT INTO @DateParts ([DatePart]) VALUES ('ALL'), ('Y'), ('Q'), ('M'), ('W'), ('D')
+SELECT 
+	D,
+	[DatePart] AS [Date part string],
+	P.[StartDate],
+	P.[EndDate],
+	[dbo].[GetProductPeriodSales](782, [DatePart], D) TotalSales
+FROM @TestDates CROSS JOIN @DateParts CROSS APPLY [dbo].GetPeriodRange([Datepart], D) P
+ORDER BY D, [DatePart]
+GO
 
 -- Question  7: Create a function [dbo].[TestInventory] to
 -- check if there are enough items of a ProductId
