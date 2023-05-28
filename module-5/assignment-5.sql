@@ -14,7 +14,7 @@
 ** 2023-05-23	Ramkumar Rajanbabu	Completed q3, q4, q9
 ** 2023-05-25	Ramkumar Rajanbabu	Fixed q1, q2, q3
 ** 2023-05-27	Ramkumar Rajanbabu	Fixed q4. Completed q5
-** 2023-05-28	Ramkumar Rajanbabu	Incomplete q6. Completed q7, q8
+** 2023-05-28	Ramkumar Rajanbabu	Incomplete q6. Completed q7
 **************************************************/
 
 -- Access Database
@@ -699,8 +699,77 @@ Requested Product ProductID Requested Quantity Available Qty Enough Inventory
 882 882 500 0 0
 */
 -- Attempt 1
+--SELECT
+--	[ProductID]
+--FROM [Production].[Product]
+--GO
+-- Attempt 2
+--SELECT
+--	[ProductID]
+--FROM [Production].[Product]
+--WHERE [ProductID] = 980
+--GO
+-- Attempt 3: Final Answer
+DROP FUNCTION IF EXISTS [dbo].[TestInventory]
+GO
+CREATE FUNCTION [dbo].[TestInventory]
+(
+	@ProductId INT,
+	@Quantity INT
+)
+RETURNS BIT
+AS
+BEGIN 
+	IF (@ProductId IS NULL
+		OR @Quantity IS NULL
+		OR NOT EXISTS(
+			SELECT
+				[ProductID]
+			FROM [Production].[Product]
+			WHERE [ProductID] = @ProductId)
+		OR @Quantity < 0)
+	RETURN NULL
 
- 
+	DECLARE @Available INT = (
+		SELECT
+			SUM([Quantity])
+		FROM [Production].[ProductInventory]
+		WHERE [ProductID] = @ProductId)
+
+	RETURN
+		CASE
+			WHEN @Available >= @Quantity
+				THEN 1
+			ELSE 0
+		END
+END
+GO
+-- Testing Answer
+DECLARE @RequestedProducts TABLE(
+P INT
+)
+DECLARE @RequestedQuantity TABLE(
+Q INT
+)
+INSERT INTO @RequestedProducts (P)
+	VALUES (5), (7), (680), (717), (853), (882), (860), (842);
+INSERT INTO @RequestedQuantity (Q)
+	VALUES (-1), (5), (50), (500);
+WITH InventorySummary AS (
+SELECT P.[ProductID], SUM([Quantity]) AS [Available Qty]
+FROM [Production].[Product] P
+JOIN [Production].[ProductInventory] I ON P.[ProductID] = I.[ProductID]
+GROUP BY P.[ProductID]
+)
+SELECT
+	T.[P] AS [Requested Product],
+	I.[ProductID], Q.[Q] AS [Requested Quantity],
+	I.[Available Qty],
+	[dbo].[TestInventory](T.[P], Q.[Q]) AS [Enough Inventory]
+FROM @RequestedQuantity Q CROSS JOIN @RequestedProducts T
+LEFT JOIN InventorySummary I ON T.[P] = I.[ProductID]
+ORDER BY T.[P], Q.[Q]
+GO
 
 -- Question  8: Create a stored procedure [dbo].[TopNProductsInPeriod]
 -- that returns the top N products sold during the specified period of time,
