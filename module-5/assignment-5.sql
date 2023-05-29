@@ -14,7 +14,7 @@
 ** 2023-05-23	Ramkumar Rajanbabu	Completed q3, q4, q9
 ** 2023-05-25	Ramkumar Rajanbabu	Fixed q1, q2, q3
 ** 2023-05-27	Ramkumar Rajanbabu	Fixed q4. Completed q5
-** 2023-05-28	Ramkumar Rajanbabu	Incomplete q6. Completed q7
+** 2023-05-28	Ramkumar Rajanbabu	Incomplete q6, q10. Completed q7, q8.
 **************************************************/
 
 -- Access Database
@@ -508,20 +508,20 @@ BEGIN
 END
 GO
 -- Testing Answer
---DECLARE @TestDates TABLE(
---D DATE
---)
---DECLARE @DateParts TABLE(
---[DatePart] NVARCHAR(12)
---)
---INSERT INTO @TestDates (D)
---VALUES ('3141-5-9'), ('1011-12-13')
---INSERT INTO @DateParts ([DatePart])
---VALUES ('Y'), ('Q'), ('M'), ('W'), ('D')
---SELECT D, [DatePart] AS [Date part string], P.[StartDate], P.[EndDate]
---FROM @TestDates CROSS JOIN @DateParts CROSS APPLY [dbo].GetPeriodRange([Datepart], D) P
---ORDER BY D, [DatePart]
---GO
+DECLARE @TestDates TABLE(
+D DATE
+)
+DECLARE @DateParts TABLE(
+[DatePart] NVARCHAR(12)
+)
+INSERT INTO @TestDates (D)
+VALUES ('3141-5-9'), ('1011-12-13')
+INSERT INTO @DateParts ([DatePart])
+VALUES ('Y'), ('Q'), ('M'), ('W'), ('D')
+SELECT D, [DatePart] AS [Date part string], P.[StartDate], P.[EndDate]
+FROM @TestDates CROSS JOIN @DateParts CROSS APPLY [dbo].GetPeriodRange([Datepart], D) P
+ORDER BY D, [DatePart]
+GO
 
 -- Question  6: Create function[dbo].[GetProductPeriodSales] to
 -- get the total sales of product, for the specified period of time,
@@ -776,31 +776,44 @@ GO
 -- around given date.
 --
 -- Periods of time are: All, Year, Quarter, Month, Week, Day
--- Attempt 1
-IF OBJECT_ID (N'[dbo].[TopNProductsInPeriod]') IS NOT NULL
-	DROP PROCEDURE [dbo].[TopNProductsInPeriod]
+-- Attempt 1: Final Answer
+DROP PROCEDURE IF EXISTS [dbo].[TopNProductsInPeriod]
 GO
-CREATE PROCEDURE [dbo].[TopNProductsInPeriod]
+CREATE OR ALTER PROCEDURE [dbo].[TopNProductsInPeriod]
 	@TopN INT,
 	@Period NVARCHAR(12),
 	@Date DATE
 AS
 	DECLARE @StartDate DATE
 	DECLARE @EndDate DATE
-	SELECT @StartDate = R.[StartDate], @EndDate = R.[EndDate] FROM [dbo].[GetPeriodRange](@Period, @Date) R;
+	SELECT 
+		@StartDate = R.[StartDate],
+		@EndDate = R.[EndDate]
+	FROM [dbo].[GetPeriodRange](@Period, @Date) R;
 
-	WITH TopNP
-	SELECT P.[ProductID], P.[Name], T.[Sales Total]
+	WITH TopNProducts AS (
+		SELECT 
+			TOP (@TopN) D.[ProductID],
+			SUM(D.[LineTotal]) AS [Sales Total]
+		FROM [Sales].[SalesOrderDetail] D
+		INNER JOIN [Sales].[SalesOrderHeader] H
+			ON D.[SalesOrderID] = H.[SalesOrderID]
+		WHERE CAST(H.[OrderDate] AS DATE)
+			BETWEEN @StartDate
+			AND @EndDate
+		GROUP BY D.[ProductID]
+		ORDER BY SUM(D.[LineTotal]) DESC
+	)
+	SELECT 
+		P.[ProductID],
+		P.[Name],
+		T.[Sales Total]
 	FROM [Production].[Product] P
 	INNER JOIN TopNProducts T
-		ON
+		ON P.[ProductID] = T.[ProductID]
 GO
-
-
-
-EXEC [dbo].[TopNProductsInPeriod]
+EXEC [dbo].[TopNProductsInPeriod] @TopN=4, @Period='Q', @Date='2013-12-13'
 GO
-
 
 -- Question  9: Create a stored procedure to insert a detail
 -- line in [Sales].[SalesOrderDetail], for a
@@ -1009,5 +1022,5 @@ NULL NULL 317 0.00 0.00 2018-05-04 00:03:56.237 NULL 2018-05-04 00:03:56.237
 4 37 932 9.8603 9.3463 2018-05-04 00:03:56.237 2013-05-30 00:00:00.000 2018-05-04 00:03:56.237
 4 37 933 12.863 12.1924 2018-05-04 00:03:56.237 2013-05-30 00:00:00.000 2018-05-04 00:03:56.237
 4 37 934 11.4386 10.8423 2018-05-04 00:03:56.237 2013-05-30 00:00:00.000 2018-05-04 00:03:56.237
-
 */
+-- Attempt 1: Unsure?
