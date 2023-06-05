@@ -9,7 +9,7 @@
 ***************************************************
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
-** 2023-06-05	Ramkumar Rajanbabu	Completed q1, q2, q3.
+** 2023-06-05	Ramkumar Rajanbabu	Completed q1, q2, q3, q4.
 **************************************************/
 
 -- Access Database
@@ -86,15 +86,15 @@ UPDATE @Person
 	SET [Birthday] = DATEADD(YEAR, -20, [Birthday])
 OUTPUT inserted.*, deleted.*
 
--- Q4: Using a MERGE statement, and @Person_HR_updates as the source and @Person as
--- the target.
--- Update @Person with all changes in @Person_HR_updates
--- If both @Person and @Person_HR_updates have the same value for [NationalId],
+-- Q4: Using a MERGE statement, update @Person with all changes in @Person_HR_updates.
+-- TARGET: @Person
+-- SOURCE: @Person_HR_updates
+-- Rule 1: If both @Person and @Person_HR_updates have the same value for [NationalId],
 -- update all other columns in @Person with respective columns in
 -- @Person_HR_updates
--- If a row with [NationalId] in @Person is not in @Person_HR_updates,
+-- Rule 2: If a row with [NationalId] in @Person is not in @Person_HR_updates,
 -- delete the row in @Person
--- If a row with [NationalId] in @Person_HR_updates is not in @Person,
+-- Rule 3: If a row with [NationalId] in @Person_HR_updates is not in @Person,
 -- insert the row in @Person
 DECLARE @Person TABLE(
 [NationalId] NVARCHAR(30) PRIMARY KEY NONCLUSTERED NOT NULL,
@@ -110,21 +110,6 @@ DECLARE @Person_HR_updates TABLE(
 [Birthday] DATETIME NOT NULL,
 [PersonalEmail] NVARCHAR(100)
 )
-DECLARE @MonthlySummary TABLE(
-[Year] INT,
-M01 MONEY,
-M02 MONEY,
-M03 MONEY,
-M04 MONEY,
-M05 MONEY,
-M06 MONEY,
-M07 MONEY,
-M08 MONEY,
-M09 MONEY,
-M10 MONEY,
-M11 MONEY,
-M12 MONEY
-)
 INSERT INTO @Person([NationalId],[Name],[LastName],[Birthday],[PersonalEmail])
 OUTPUT inserted.*
 VALUES
@@ -134,12 +119,50 @@ VALUES
 ,('XYZ04-6','Delta','Pi','3141-5-9','delta.pi@email.com')
 INSERT INTO @Person_HR_updates([NationalId],[Name],[LastName],[Birthday],
 [PersonalEmail])
+OUTPUT inserted.*
 VALUES
 ('XYZ01-9','Alfa','Nu','2000-01-01','alpha.nu@email.com')
 ,('XYZ02-8','Betta','Ksi','2000-01-02','beta.ksi@email.com')
 ,('XYZ04-6','Delta','Pi','3141-5-9','delta.pi@email.com')
 ,('XYZ05-5','Epsilon','Rho','2000-01-03','epsilon.rho@email.com')
 -- Attempt 1
+--MERGE INTO @Person P -- Target
+--	USING @Person_HR_updates H -- Source
+--	ON P.[NationalID] = H.[NationalID] -- Matched on
+--	-- Rule 1
+--	WHEN MATCHED THEN
+--		UPDATE
+--			SET [Name] = H.[Name],
+--				[LastName] = H.[LastName],
+--				[Birthday] = H.[Birthday],
+--				[PersonalEmail] = H.[PersonalEmail]
+--	OUTPUT inserted.*, deleted.*
+--;
+--SELECT * FROM @Person
+--GO
+-- Attempt 2: Final Answer
+-- Error Occurred: An action of type 'DELETE' is not allowed in the 'WHEN NOT MATCHED' clause of a MERGE statement.
+MERGE INTO @Person P -- Target
+	USING @Person_HR_updates H -- Source
+	ON P.[NationalID] = H.[NationalID] -- Matched on PK
+	-- Rule 1
+	WHEN MATCHED THEN
+		UPDATE
+			SET [Name] = H.[Name],
+				[LastName] = H.[LastName],
+				[Birthday] = H.[Birthday],
+				[PersonalEmail] = H.[PersonalEmail]
+	-- Rule 2
+	WHEN NOT MATCHED BY TARGET THEN
+		DELETE
+	-- Rule 3
+	WHEN NOT MATCHED BY SOURCE THEN
+		INSERT ([NationalId],[Name], [LastName], [Birthday], [PersonalEmail])
+			VALUES (H.[NationalId], H.[Name], H.[LastName], H.[Birthday], H.[PersonalEmail])
+	OUTPUT inserted.*, deleted.*
+;
+SELECT * FROM @Person
+GO
 
 -- Q5: Using [Sales].[SalesOrderHeader] and a PIVOT clause, insert into
 -- @MonthlySummary (specified above)
