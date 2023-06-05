@@ -9,7 +9,7 @@
 ***************************************************
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
-** 2023-06-05	Ramkumar Rajanbabu	Completed q1, q2, q3, q4, q5.
+** 2023-06-05	Ramkumar Rajanbabu	Completed q1, q2, q3, q4, q5, q6.
 **************************************************/
 
 -- Access Database
@@ -206,7 +206,55 @@ M12 MONEY
 --GO
 -- Attempt 4: Final Answer
 INSERT INTO @MonthlySummary
-OUTPUT inserted.*
+SELECT
+	[Year],
+	P.[1],
+	P.[2],
+	P.[3],
+	P.[4],
+	P.[5],
+	P.[6],
+	P.[7],
+	P.[8],
+	P.[9],
+	P.[10],
+	P.[11],
+	P.[12]
+FROM (	
+	-- Raw data
+	SELECT 
+		YEAR([OrderDate]) AS [Year],
+		DATEPART(MONTH, [OrderDate]) AS [Monthly Sales],
+		[SubTotal]
+	FROM [Sales].[SalesOrderHeader]
+) AS YM
+PIVOT (
+	SUM([SubTotal]) -- Aggregated data
+	FOR [Monthly Sales]
+	IN ([1], [2], [3], [4], [5], [6], [7], [8], [9], [10], [11], [12])
+) AS P
+
+SELECT * FROM @MonthlySummary
+GO
+
+-- Q6: Using @MonthlySummary and an UNPIVOT clause, write a query that returns
+-- the Year, Month and month sales.
+DECLARE @MonthlySummary TABLE(
+[Year] INT,
+M01 MONEY,
+M02 MONEY,
+M03 MONEY,
+M04 MONEY,
+M05 MONEY,
+M06 MONEY,
+M07 MONEY,
+M08 MONEY,
+M09 MONEY,
+M10 MONEY,
+M11 MONEY,
+M12 MONEY
+)
+INSERT INTO @MonthlySummary
 SELECT
 	[Year],
 	P.[1],
@@ -234,27 +282,21 @@ FROM (
 			FOR [Monthly Sales]
 			IN ([1], [2], [3], [4], [5], [6], [7], [8], [9], [10], [11], [12])
 		) AS P
-ORDER BY Year
-GO
-
--- Q6: Using @MonthlySummary and an UNPIVOT clause, write a query that returns
--- the Year, Month and month sales.
-DECLARE @MonthlySummary TABLE(
-[Year] INT,
-M01 MONEY,
-M02 MONEY,
-M03 MONEY,
-M04 MONEY,
-M05 MONEY,
-M06 MONEY,
-M07 MONEY,
-M08 MONEY,
-M09 MONEY,
-M10 MONEY,
-M11 MONEY,
-M12 MONEY
-)
--- Attempt 1
+-- Attempt 1: Final Answer
+SELECT
+	[Year],
+	[Month],
+	[Monthly Sales]
+FROM (
+	SELECT 
+		[Year], [M01], [M02], [M03], [M04], [M05], [M06], [M07], [M08], [M09], [M10], [M11], [M12]
+	FROM @MonthlySummary
+) AS P
+UNPIVOT (
+	[Monthly Sales]
+	FOR [Month]
+	IN ([M01], [M02], [M03], [M04], [M05], [M06], [M07], [M08], [M09], [M10], [M11], [M12])
+) AS U
 
 -- Q7: Using [Sales].[SalesOrderHeader], find all sales for:
 -- [OrderDate] >= '2012-06-01' AND [OrderDate] < '2013-07-01'
