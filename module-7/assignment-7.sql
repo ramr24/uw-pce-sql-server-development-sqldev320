@@ -9,7 +9,7 @@
 ***************************************************
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
-** 2023-06-05	Ramkumar Rajanbabu	Completed q1, q2, q3, q4. Partially completed q5.
+** 2023-06-05	Ramkumar Rajanbabu	Completed q1, q2, q3, q4, q5.
 **************************************************/
 
 -- Access Database
@@ -204,7 +204,9 @@ M12 MONEY
 --GROUP BY YEAR([OrderDate]), DATEPART(MONTH, [OrderDate]) 
 --ORDER BY YEAR([OrderDate]), DATEPART(MONTH, [OrderDate]) 
 --GO
--- Attempt 4: Final Answer (Need to Insert into @MonthlySummary)
+-- Attempt 4: Final Answer
+INSERT INTO @MonthlySummary
+OUTPUT inserted.*
 SELECT
 	[Year],
 	P.[1],
@@ -237,6 +239,21 @@ GO
 
 -- Q6: Using @MonthlySummary and an UNPIVOT clause, write a query that returns
 -- the Year, Month and month sales.
+DECLARE @MonthlySummary TABLE(
+[Year] INT,
+M01 MONEY,
+M02 MONEY,
+M03 MONEY,
+M04 MONEY,
+M05 MONEY,
+M06 MONEY,
+M07 MONEY,
+M08 MONEY,
+M09 MONEY,
+M10 MONEY,
+M11 MONEY,
+M12 MONEY
+)
 -- Attempt 1
 
 -- Q7: Using [Sales].[SalesOrderHeader], find all sales for:
