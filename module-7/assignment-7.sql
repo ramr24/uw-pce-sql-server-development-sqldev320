@@ -9,7 +9,7 @@
 ***************************************************
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
-** 2023-06-05	Ramkumar Rajanbabu	Completed q1, q2.
+** 2023-06-05	Ramkumar Rajanbabu	Completed q1, q2, q3.
 **************************************************/
 
 -- Access Database
@@ -74,28 +74,6 @@ DECLARE @Person TABLE(
 [Birthday] DATETIME NOT NULL,
 [PersonalEmail] NVARCHAR(100)
 )
-DECLARE @Person_HR_updates TABLE(
-[NationalId] NVARCHAR(30) PRIMARY KEY NONCLUSTERED NOT NULL,
-[Name] NVARCHAR(25) NOT NULL,
-[LastName] NVARCHAR(25) NOT NULL,
-[Birthday] DATETIME NOT NULL,
-[PersonalEmail] NVARCHAR(100)
-)
-DECLARE @MonthlySummary TABLE(
-[Year] INT,
-M01 MONEY,
-M02 MONEY,
-M03 MONEY,
-M04 MONEY,
-M05 MONEY,
-M06 MONEY,
-M07 MONEY,
-M08 MONEY,
-M09 MONEY,
-M10 MONEY,
-M11 MONEY,
-M12 MONEY
-)
 INSERT INTO @Person([NationalId],[Name],[LastName],[Birthday],[PersonalEmail])
 OUTPUT inserted.*
 VALUES
@@ -103,14 +81,10 @@ VALUES
 ,('XYZ02-8','Beta','Ksi','2000-01-02','beta.ksi@email.com')
 ,('XYZ03-7','Gamma','Omicron','2000-01-03','gamma.omicron@email.com')
 ,('XYZ04-6','Delta','Pi','3141-5-9','delta.pi@email.com')
-INSERT INTO @Person_HR_updates([NationalId],[Name],[LastName],[Birthday],
-[PersonalEmail])
-VALUES
-('XYZ01-9','Alfa','Nu','2000-01-01','alpha.nu@email.com')
-,('XYZ02-8','Betta','Ksi','2000-01-02','beta.ksi@email.com')
-,('XYZ04-6','Delta','Pi','3141-5-9','delta.pi@email.com')
-,('XYZ05-5','Epsilon','Rho','2000-01-03','epsilon.rho@email.com')
--- Attempt 1
+-- Attempt 1: Final Answer
+UPDATE @Person
+	SET [Birthday] = DATEADD(YEAR, -20, [Birthday])
+OUTPUT inserted.*, deleted.*
 
 -- Q4: Using a MERGE statement, and @Person_HR_updates as the source and @Person as
 -- the target.
@@ -170,7 +144,53 @@ VALUES
 -- Q5: Using [Sales].[SalesOrderHeader] and a PIVOT clause, insert into
 -- @MonthlySummary (specified above)
 -- the monthly sales (as SUM([SubTotal]))
+DECLARE @MonthlySummary TABLE(
+[Year] INT,
+M01 MONEY,
+M02 MONEY,
+M03 MONEY,
+M04 MONEY,
+M05 MONEY,
+M06 MONEY,
+M07 MONEY,
+M08 MONEY,
+M09 MONEY,
+M10 MONEY,
+M11 MONEY,
+M12 MONEY
+)
 -- Attempt 1
+--SELECT 
+--	*
+--FROM [Sales].[SalesOrderHeader]
+--GO
+-- Attempt 2
+SELECT
+	[Year],
+	P.[M01],
+	P.[M02],
+	P.[M03],
+	P.[M04],
+	P.[M05],
+	P.[M06],
+	P.[M07],
+	P.[M08],
+	P.[M09],
+	P.[M10],
+	P.[M11],
+	P.[M12]
+FROM (
+		SELECT
+			YEAR([OrderDate]) AS [Year]
+	) AS YM
+	PIVOT (
+			SUM([SubTotal])
+			FOR [Month]
+			IN ([M01], [M02], [M03], [M04], 
+				[M05], [M06], [M07], [M08],
+				[M09], [M10], [M11], [M12])
+		) AS P
+	ORDER BY Year
 
 -- Q6: Using @MonthlySummary and an UNPIVOT clause, write a query that returns
 -- the Year, Month and month sales.
