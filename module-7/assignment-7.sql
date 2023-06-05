@@ -9,7 +9,7 @@
 ***************************************************
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
-** 2023-06-05	Ramkumar Rajanbabu	Completed q1, q2, q3, q4.
+** 2023-06-05	Ramkumar Rajanbabu	Completed q1, q2, q3, q4. Partially completed q5.
 **************************************************/
 
 -- Access Database
@@ -187,33 +187,53 @@ M12 MONEY
 --	*
 --FROM [Sales].[SalesOrderHeader]
 --GO
--- Attempt 2
+-- Attempt 2: Raw data
+--SELECT 
+--	YEAR([OrderDate]) AS [Year],
+--	DATEPART(MONTH, [OrderDate]) AS [Monthly Sales],
+--	[SubTotal]
+--FROM [Sales].[SalesOrderHeader]
+--ORDER BY YEAR([OrderDate]), DATEPART(MONTH, [OrderDate]) 
+--GO
+-- Attempt 3: Aggregated data
+--SELECT 
+--	YEAR([OrderDate]) AS [Year],
+--	DATEPART(MONTH, [OrderDate]) AS [Monthly Sales],
+--	SUM([SubTotal])
+--FROM [Sales].[SalesOrderHeader]
+--GROUP BY YEAR([OrderDate]), DATEPART(MONTH, [OrderDate]) 
+--ORDER BY YEAR([OrderDate]), DATEPART(MONTH, [OrderDate]) 
+--GO
+-- Attempt 4: Final Answer (Need to Insert into @MonthlySummary)
 SELECT
 	[Year],
-	P.[M01],
-	P.[M02],
-	P.[M03],
-	P.[M04],
-	P.[M05],
-	P.[M06],
-	P.[M07],
-	P.[M08],
-	P.[M09],
-	P.[M10],
-	P.[M11],
-	P.[M12]
-FROM (
-		SELECT
-			YEAR([OrderDate]) AS [Year]
+	P.[1],
+	P.[2],
+	P.[3],
+	P.[4],
+	P.[5],
+	P.[6],
+	P.[7],
+	P.[8],
+	P.[9],
+	P.[10],
+	P.[11],
+	P.[12]
+FROM (	
+		-- Raw data
+		SELECT 
+			YEAR([OrderDate]) AS [Year],
+			DATEPART(MONTH, [OrderDate]) AS [Monthly Sales],
+			[SubTotal]
+		FROM [Sales].[SalesOrderHeader]
 	) AS YM
 	PIVOT (
-			SUM([SubTotal])
-			FOR [Month]
-			IN ([M01], [M02], [M03], [M04], 
-				[M05], [M06], [M07], [M08],
-				[M09], [M10], [M11], [M12])
+			SUM([SubTotal]) -- Aggregated data
+			FOR [Monthly Sales]
+			IN ([1], [2], [3], [4], [5], [6], [7], [8], [9], [10], [11], [12])
 		) AS P
-	ORDER BY Year
+ORDER BY Year
+GO
 
 -- Q6: Using @MonthlySummary and an UNPIVOT clause, write a query that returns
 -- the Year, Month and month sales.
