@@ -9,7 +9,7 @@
 ***************************************************
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
-** 2023-06-05	Ramkumar Rajanbabu	Completed q1, q2, q3, q4, q5, q6, q7, q8, q9.
+** 2023-06-05	Ramkumar Rajanbabu	Completed q1-q10.
 **************************************************/
 
 -- Access Database
@@ -400,3 +400,24 @@ GO
 -- SUM([SubTotal]) of the previous year
 -- ordered by Year
 -- Attempt 1
+--SELECT DISTINCT
+--	YEAR([OrderDate]) AS [Year],
+--	SUM([SubTotal]) AS [Sales]
+--FROM [Sales].[SalesOrderHeader]
+--GROUP BY YEAR([OrderDate])
+--ORDER BY YEAR([OrderDate])
+--GO
+-- Attempt 2: Final Answer
+SELECT DISTINCT
+	YEAR([OrderDate]) AS [Year],
+	SUM([SubTotal]) AS [Sales],
+	LAG(YEAR([OrderDate]), 1, NULL) OVER(
+		ORDER BY YEAR([OrderDate])
+	) AS [Previous Year],
+	LAG(SUM([SubTotal]), 1, NULL) OVER(
+		ORDER BY YEAR([OrderDate])
+	) AS [Previous Year Sales]
+FROM [Sales].[SalesOrderHeader]
+GROUP BY YEAR([OrderDate])
+ORDER BY YEAR([OrderDate])
+GO
