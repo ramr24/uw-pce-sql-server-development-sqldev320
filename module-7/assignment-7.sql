@@ -9,7 +9,7 @@
 ***************************************************
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
-** 2023-06-05	Ramkumar Rajanbabu	Completed q1, q2, q3, q4, q5, q6.
+** 2023-06-05	Ramkumar Rajanbabu	Completed q1, q2, q3, q4, q5, q6, q7.
 **************************************************/
 
 -- Access Database
@@ -309,6 +309,40 @@ UNPIVOT (
 -- The sales order id
 -- The order sub total
 -- Attempt 1
+--SELECT
+--	[OrderDate],
+--	[SubTotal]
+--FROM [Sales].[SalesOrderHeader]
+--WHERE [TerritoryID] = 1
+--AND [OrderDate] >= '2012-06-01'
+--AND [OrderDate] < '2013-07-01'
+--GO
+-- Attempt 2
+--SELECT
+--	ROW_NUMBER() OVER(ORDER BY [SubTotal] DESC) AS [Row Number],
+--	[OrderDate],
+--	DATEPART(WEEK, [OrderDate]) AS [Week Number],
+--	[SalesOrderID],
+--	[SubTotal]
+--FROM [Sales].[SalesOrderHeader]
+--WHERE [TerritoryID] = 1
+--AND [OrderDate] >= '2012-06-01'
+--AND [OrderDate] < '2013-07-01'
+--GO
+-- Attempt 3: Final Answer
+SELECT
+	ROW_NUMBER() OVER(
+		PARTITION BY DATEPART(WEEK,[OrderDate]) ORDER BY [SubTotal] DESC
+	) AS [Row Number],
+	[OrderDate],
+	DATEPART(WEEK, [OrderDate]) AS [Week Number],
+	[SalesOrderID],
+	[SubTotal]
+FROM [Sales].[SalesOrderHeader]
+WHERE [TerritoryID] = 1
+AND [OrderDate] >= '2012-06-01'
+AND [OrderDate] < '2013-07-01'
+GO
 
 -- Q8: Using [Sales].[SalesOrderHeader], find all sales for:
 -- [OrderDate] >= '2012-06-01' AND [OrderDate] < '2013-07-01'
