@@ -9,7 +9,7 @@
 ***************************************************
 ** Date			Author				Description 
 ** ----------	------------------  ---------------
-** 2023-06-05	Ramkumar Rajanbabu	Completed q1, q2, q3, q4, q5, q6, q7, q8.
+** 2023-06-05	Ramkumar Rajanbabu	Completed q1, q2, q3, q4, q5, q6, q7, q8, q9.
 **************************************************/
 
 -- Access Database
@@ -354,7 +354,7 @@ GO
 -- The week number
 -- The sales order id
 -- The order sub total
--- Attempt 1
+-- Attempt 1: Final Answer
 SELECT
 	RANK() OVER(
 		PARTITION BY YEAR([OrderDate]),
@@ -375,6 +375,25 @@ GO
 -- that returns the Year, Quarter and the SUM([SubTotal])
 -- ordered by Year, Quarter
 -- Attempt 1
+--SELECT
+--	YEAR([OrderDate]) AS [Year],
+--	DATEPART(QUARTER, [OrderDate]) AS [Quarter],
+--	SUM([SubTotal])
+--FROM [Sales].[SalesOrderHeader]
+--GROUP BY YEAR([OrderDate]), DATEPART(QUARTER, [OrderDate]) 
+--ORDER BY YEAR([OrderDate]), DATEPART(QUARTER, [OrderDate]) 
+--GO
+-- Attempt 2: Final Answer
+SELECT DISTINCT
+	YEAR([OrderDate]) AS [Year],
+	DATEPART(QUARTER, [OrderDate]) AS [Quarter],
+	SUM([SubTotal]) OVER(
+		PARTITION BY YEAR([OrderDate]), DATEPART(QUARTER, [OrderDate])
+		ORDER BY YEAR([OrderDate]), DATEPART(QUARTER, [OrderDate])
+	)AS [Quarterly Total]
+FROM [Sales].[SalesOrderHeader]
+ORDER BY YEAR([OrderDate]), DATEPART(QUARTER, [OrderDate]) 
+GO
 
 -- Q10: Write a query using LAG() OVER() clause with [Sales].[SalesOrderHeader]
 -- that returns the Year, the SUM([SubTotal]), the previous year and the
