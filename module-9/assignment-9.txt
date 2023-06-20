@@ -1,0 +1,60 @@
+/**************************************************
+** File: Assignment 9
+** Date: 2023-06-20
+** Auth: Ramkumar Rajanbabu
+***************************************************
+** Desc: Module 9 - Assignment 9
+***************************************************
+** Modification History
+***************************************************
+** Date	        Author	            Description 
+** ----------	------------------  ---------------
+** 2023-06-20	Ramkumar Rajanbabu  Started assignment
+**************************************************/
+
+-- Q01: What is SQL Injection?
+-- Answer:
+--		
+
+-- Q02: What is the correct way to write
+-- 	parameterized queries and procedures?
+-- Answer:
+--		
+
+-- Q03: Name two security access strategies.
+-- Answer:
+--	
+
+-- Q04: Name three best practices for
+-- 	security configuration.
+-- Answer:
+--	
+
+-- Q05: What is the Service Master Key (SMK)?
+-- Answer:
+--	
+
+-- Q06: What is the Database Master Key (DMK)?
+-- Answer:
+--	
+
+-- Q07: What is a reason to prefer symmetric
+-- 	encryption over asymetric one?
+-- Answer:
+--	
+
+-- Q08: What is a reason to prefer asymmetric
+-- 	encryption over symetric one?
+-- Answer:
+--	
+
+-- Q09: What is Transparent Data Encryption?
+-- Answer:
+--	
+
+-- Q10: Mention 2 security tips you
+-- 	think are the most relevant to
+-- 	you or the organization you
+-- 	work for.
+-- Answer:
+--	
