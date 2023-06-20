@@ -1,0 +1,98 @@
+/**************************************************
+** File: Assignment 8
+** Date: 2023-06-14
+** Auth: Ramkumar Rajanbabu
+***************************************************
+** Desc: Module 8 - Assignment 8
+***************************************************
+** Modification History
+***************************************************
+** Date	        Author	            Description 
+** ----------	------------------  ---------------
+** 2023-06-14	Ramkumar Rajanbabu  Completed q1-q10.
+**************************************************/
+
+-- Question 1: SQL Server File Architecture
+--      What types of operating system
+--      files are required in a Microsoft
+--      SQL Server database
+-- Answer:
+--      1) .mdf
+--      2) .ndf
+--      3) .ldf 
+
+-- Question 2: SQL Server File Architecture
+--      What type of information is
+--      stored in the data file.
+-- Answer: 
+--      Data and objects such as tables, indexes, stored procedures, and views.
+
+-- Question 3: SQL Server File Architecture
+--      How are tables stored in
+--      the data file.
+-- Answer: 
+--      As a heap or a clustered index.
+
+-- Question 4: SQL Server File Architecture
+--      What is a heap in SQL Server
+--      terminology.
+-- Answer: 
+--      A table that has no clustered index.
+
+-- Question 5: Transaction and Concurrency
+--      What are the most common issues
+--      associated with concurrency
+--      and transactions.
+-- Answer: 
+--      1) Lost updates
+--      2) Dirty reads
+--      3) Non-repeatable reads
+--      4) Phantom reads.
+
+-- Question 6: Transaction and Concurrency
+--      Which are the isolation levels
+--      defined in SQL Server.
+-- Answer:
+--      1) READ UNCOMMITTED
+--      2) READ COMMITTED
+--      3) REPEATABLE READ
+--      4) SERIALIZABLE
+--      5) SNAPSHOT
+ 
+-- Question 7: SQL Server Lock Types
+--      Mention 4 lock types in
+--      SQL Server.
+-- Answer: 
+--      1) Row Lock (RID)
+--      2) Page Lock (KEY)
+--      3) Key Lock (KEY)
+--      4) Table Lock (TAB)
+--      5) Extent Lock (EXT)
+--      6) Database Lock (DB)
+
+-- Question 8: SQL Server Lock Modes
+--      Mention 4 lock modes in SQL Server.
+-- Answer:
+--      1) Shared (S)
+--      2) Update (U)
+--      3) Exclusive (X)
+--      4) Intent (I)
+--      5) Schema (Sch)
+--      6) Bulk Update (BU)
+--      7) Key-range
+ 
+-- Question 9: SQL Server Locks
+--      Mention 2 ways to identify
+--      locks in SQL Server.
+-- Answer: 
+--      1) Activity Monitor
+--      2) Dynamic Management Views (DMVs)
+
+-- Question 10: SQL Server Deadlocks
+--      Mention 2 ways to minimize
+--      Deadlocks
+-- Answer:
+--      1) Keep transactions short and in one batch 
+--      2) Use a low isolation level if possible 
+--      3) Access objects in the same order
+--      4) Avoid user interaction in transactions
