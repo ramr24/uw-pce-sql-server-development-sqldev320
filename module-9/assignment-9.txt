@@ -9,7 +9,7 @@
 ***************************************************
 ** Date	        Author	            Description 
 ** ----------	------------------  ---------------
-** 2023-06-20	Ramkumar Rajanbabu  Completed q1-q4, q6.
+** 2023-06-20	Ramkumar Rajanbabu  Completed q1-q10.
 **************************************************/
 
 -- Q01: What is SQL Injection?
@@ -42,7 +42,10 @@
 
 -- Q05: What is the Service Master Key (SMK)?
 -- Answer:
---	
+--	It is a symmetric key generate the first time
+--	the SQL server instance is started and used to
+-- 	encrypt linked server password, credentials and
+-- 	DB master key.
 
 -- Q06: What is the Database Master Key (DMK)?
 -- Answer:
@@ -53,20 +56,24 @@
 -- Q07: What is a reason to prefer symmetric
 -- 	encryption over asymetric one?
 -- Answer:
---	
+--	It has better performance.
 
 -- Q08: What is a reason to prefer asymmetric
 -- 	encryption over symetric one?
 -- Answer:
---	
+--	It has better security.
 
 -- Q09: What is Transparent Data Encryption?
 -- Answer:
---	
+--	Transparent Data Encryption allows you to
+-- 	encrypt the entire database at once, without
+-- 	any database rework.
 
 -- Q10: Mention 2 security tips you
 -- 	think are the most relevant to
 -- 	you or the organization you
 -- 	work for.
 -- Answer:
---	
+--	1) Granting permissions only when needed 
+--	to specific groups.
+--	2) Choosing asymmetric encryption to favor security.	
