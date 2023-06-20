@@ -9,26 +9,36 @@
 ***************************************************
 ** Date	        Author	            Description 
 ** ----------	------------------  ---------------
-** 2023-06-20	Ramkumar Rajanbabu  Started assignment
+** 2023-06-20	Ramkumar Rajanbabu  Completed q1-q4, q6.
 **************************************************/
 
 -- Q01: What is SQL Injection?
 -- Answer:
---		
+--	It is a code injection technique,
+-- 	used to attack data-driven applications,
+-- 	in which malicious SQL statements are
+-- 	inserted into an entry field for execution. 	
 
 -- Q02: What is the correct way to write
 -- 	parameterized queries and procedures?
 -- Answer:
---		
+--	Make all values needed from the user 
+-- 	a separate parameter and make all 
+-- 	parameters strongly typed.	
 
 -- Q03: Name two security access strategies.
 -- Answer:
---	
+--	1) Grant only explicit permissions as needed. 
+-- 	2) Grant SELECT for specific tables 
 
 -- Q04: Name three best practices for
 -- 	security configuration.
 -- Answer:
---	
+--	1) Minimize shared resources for secure data 
+-- 	– consider dedicated SQL Server for high security 
+--	2) Disable unused network protocols 
+-- 	Plan for security incident response,
+-- 	communications, auditing, and data recovery 
 
 -- Q05: What is the Service Master Key (SMK)?
 -- Answer:
@@ -36,7 +46,9 @@
 
 -- Q06: What is the Database Master Key (DMK)?
 -- Answer:
---	
+--	It is a symmetric key used to protect the 
+-- 	private keys of certificates and asymmetric
+-- 	keys that are present in the database. 
 
 -- Q07: What is a reason to prefer symmetric
 -- 	encryption over asymetric one?
